@@ -1,4 +1,4 @@
-#Java异常体系
+# Java异常体系
 ## 体系划分
 1. 异常的顶层父类是Throwable,两个子类分别是Error与Exception
 
