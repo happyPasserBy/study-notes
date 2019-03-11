@@ -1,0 +1,12 @@
+# abstract与interface
+## abstract
+* 用于修饰类和方法，抽象公共的类和方法
+* 抽象类不能被实例化
+* 抽象方法必须在抽象类中，而抽象类不一定有抽象方法，抽象类可以包含抽象方法与普通拥有方法体的方法
+* 继承抽象类必须重写抽象类中的抽象方法
+## interface
+* interface用于描述一个类(接口类)，比abstract更加抽象
+* interface不能被实例化
+* interface的方法默认都是public,不能用final,static修饰，并且不能包含方法体
+* 一个类实现了某个接口必须重写其所有方法，interface弥补了Java的单继承，一个类可以实现多个接口
+* interface内的成员变量被final修饰即不可更改

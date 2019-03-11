@@ -1,5 +1,5 @@
 # 类加载的过程
-##一 类的加载方式
+## 一 类的加载方式
 > 隐式加载 new
 
 > 显式加载 loadClass、forName
@@ -76,7 +76,7 @@
     }
  }
 ```
-##三 classLoader的双亲委派机制
+## 三 classLoader的双亲委派机制
  1. classLoader的执行顺序
 > 类的加载首先由 自定义classLoader 》 AppClassLoader 》 ExtClassLoader 》 BootStrapClassLoader
 的加载顺序进行查看，如在某一环节发现已经加载指定类则返回，当检查到BootStrapClassLoader后仍未发现指定类则由BootStrapClassLoader开始向自定义classLoader
