@@ -225,3 +225,5 @@ ip地址    10 .  1.  2.3     00001010.00000001.00000010.00000011
 1. http://www.ruanyifeng.com/blog/2012/05/internet_protocol_suite_part_i.html
 2. 图解HTTP
 3. 网络是怎样连接的(力荐!)
+4. https://juejin.im/post/5a7146fd51882573351a9d99
+5. https://yuqirong.me/2018/03/03/HTTPS%E5%8A%A0%E5%AF%86%E5%8E%9F%E7%90%86/
