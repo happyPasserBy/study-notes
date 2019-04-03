@@ -154,6 +154,30 @@ OK
 > 在同时拥有AOF与RDB的情况下，Redis默认只会优先加载AOF然后启动，如没有AOF则加载RDB然后启动
 ### Redis新的持久化方式
 > Redis4.0推出了新的持久化方式，将AOF与RDB进行结合.....
+## Redis主从同步
+> Redis需要主从同步的原因与Mysql类似，读写分离提高并发量，防止单台Redis挂掉导致数据丢失等问题,
+Redis的主从同步一般有单个Master与多个Slave组成，Master负责写，Slave负责读
+### 全同步过程
+* Slave发送sync命令到Master
+* Master启动一个后台进程用于将Redis的数据快照保存到文件中
+* Master将保存数据快照期间接受到的写命令缓存起来
+* Master的数据快照生成完毕后发送给Slave
+* Slave执行Master发送过来的RDB文件
+* Master将这期间收集的增量写命令发送给Slave
+### 增量同步过程
+* Master接受到用户指令后判断是否需要传播到Slave
+* Master将操作记录追加AOF文件
+* Master首先确定Slave，然后将指令写入到响应缓存中并发送给Slave
+### Redis Sentinel
+> 哨兵: 一个貌不惊人的少年无意间喝下了实验室的秘密药水，获得相当于一百万个恒星爆炸的能量，成为了保护人类的超级英雄.....额，走错片场了
+Redis主从同步存在一个致命的问题，如果主库挂掉则代表Redis不能提供写操作，因此Sentinel(哨兵)应运而生，哨兵监控Redis集群，如发现Master挂掉之后可以合理的进行主从切换
+#### 主要功能
+* 监控主从服务器是否运行正常
+* 如果监控的某个Redis程序出现异常则通过API向管理员发送异常通知
+* 自动主从切换，如果监控的Master出现故障，则将一台Slave切换为Master
+#### Sentinel的启动与初始化
+> Sentinel本质上是运行在特殊模式下的Redis服务器，Sentinel的初始化并不会加载AOF/RDB文件，并且也无法执行set等存储命令，
+......未完待续
 ## 参考
 1. https://segmentfault.com/a/1190000016837791#articleHeader4
 2. http://try.redis.io/
