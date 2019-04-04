@@ -25,5 +25,24 @@ public class Singleton{
     }
 }
 ```
+## 双重检查锁
+> 这里涉及到指令重排与happen-before相关的知识点，有些知识点还未理解透，待日后再补充
+```java
+public class Singleton{
+    private static volatile Singleton instance ;
+    private Singleton(){}
+    public static synchronized Singleton getInstance(){
+        if(instance == null) {
+            synchronized (Singleton.class){
+                if(instance == null){
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+```
 ## 参考
 1. https://blog.csdn.net/ns_code/article/details/17348313
+2. https://segmentfault.com/a/1190000014888431
