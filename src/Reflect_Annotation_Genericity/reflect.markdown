@@ -9,6 +9,7 @@
 > 1. Object类的getClass方法
 > 2. 类名.class(Student.calss)
 > 3. Class类中的forName
+
 ```java
 public class Car implements Cloneable ,Engin{
     private String CarName;
@@ -55,7 +56,6 @@ public class Demo1 {
     * 调用Proxy.newProxyInstance传入相关参数
 2. 缺点
     * 被代理的类必须实现了接口
-    * 无法
 ```java
 public class MyProxy implements InvocationHandler {
     private Object target;
