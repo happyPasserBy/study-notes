@@ -1,0 +1,53 @@
+# 工厂模式
+> 用我的话说工厂模式有两个特点:封装、解耦，封装体现于将仿佛创建对象的代码集中抽取到一个类中，
+这个类就像工厂一样帮我们创建对象，解耦体现于我们将对功能类的依赖转移到了工厂上，工厂定义了对外的接口，工厂内部是如何实现
+的对我们来说并不重要，我们只是简单的调用工厂的创建指令
+## 简单工厂模式
+```java
+public abstract class Animal {
+	abstract void shout();
+}
+public class Cat extends Animal {
+	@Override
+	void shout() {
+		// TODO Auto-generated method stub
+		System.out.println("喵");
+	}
+}
+public class Dog extends Animal {
+	@Override
+	void shout() {
+		// TODO Auto-generated method stub
+		System.out.println("汪汪！");
+	}
+}
+```
+```java
+public class AnimalFactory {
+	public static Animal getAnimal(String type) {
+		Animal a = null;
+		switch (type) {
+		case "Cat":
+			a = new Cat();
+			break;
+		case "Dog":
+			a = new Dog();
+			break;
+		}
+		return a;
+	} 
+}
+```
+```java
+public class Factory {
+	public static void main(String[] args) {
+		Animal cat = AnimalFactory.getAnimal("Cat");
+		cat.shout();
+		Animal dog = AnimalFactory.getAnimal("Dog");
+		dog.shout();
+	}
+}
+
+```
+## 参考
+1. https://blog.csdn.net/jason0539/article/details/23020989
