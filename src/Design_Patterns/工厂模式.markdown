@@ -1,8 +1,18 @@
 # 工厂模式
-> 用我的话说工厂模式有两个特点:封装、解耦，封装体现于将仿佛创建对象的代码集中抽取到一个类中，
+> 用我的话说工厂模式有两个特点:封装、解耦，封装体现于将反复创建对象的代码集中抽取到一个类中，
 这个类就像工厂一样帮我们创建对象，解耦体现于我们将对功能类的依赖转移到了工厂上，工厂定义了对外的接口，工厂内部是如何实现
 的对我们来说并不重要，我们只是简单的调用工厂的创建指令
 ## 简单工厂模式
+> 简单工厂顾名思义，实现简单且适用于创建较少产品的场景
+### 职能划分
+* 工厂: 用于创建产品，包含具体的业务逻辑
+* 抽象产品类: 定义产品所具备的基本功能
+* 具体产品类: 实现了抽象产品类且包含自己单独的业务功能
+
+### 优点
+* 直观易懂，实现简单
+### 缺点
+* 如果需要生产大量不同种类产品，则工厂的实现将变的越来越复杂
 ```java
 public abstract class Animal {
 	abstract void shout();
@@ -10,14 +20,12 @@ public abstract class Animal {
 public class Cat extends Animal {
 	@Override
 	void shout() {
-		// TODO Auto-generated method stub
 		System.out.println("喵");
 	}
 }
 public class Dog extends Animal {
 	@Override
 	void shout() {
-		// TODO Auto-generated method stub
 		System.out.println("汪汪！");
 	}
 }
@@ -39,7 +47,8 @@ public class AnimalFactory {
 }
 ```
 ```java
-public class Factory {
+// 测试
+public class Test {
 	public static void main(String[] args) {
 		Animal cat = AnimalFactory.getAnimal("Cat");
 		cat.shout();
@@ -47,7 +56,161 @@ public class Factory {
 		dog.shout();
 	}
 }
-
+```
+## 工厂方法模式
+> 简单工厂的升级版本，将庞大的工厂进行拆分
+### 职能划分
+* 抽象工厂: 定义工厂所具备的基本功能，如可以生产哪类商品
+* 具体工厂: 实现了抽象工厂且包含自身生产产品的业务逻辑
+* 抽象产品: 定义商品所具备的基本功能
+* 具体产品: 实现了抽象商品且包含自身的业务逻辑
+### 优点
+* 易于扩展
+### 缺点
+* 代码量增加
+```java
+// 抽象工厂
+public abstract class AnimalFactory {
+	public abstract Animal getAnimal() ;
+}
+```
+```java
+// 具体工厂
+public class CatFactory extends AnimalFactory {
+	@Override
+	public Animal getAnimal() {
+		return new Cat();
+	}
+}
+public class DogFactory extends AnimalFactory {
+	@Override
+	public Animal getAnimal() {
+		return new Dog();
+	}
+}
+```
+```java
+// 抽象产品
+public abstract class Animal {
+	abstract void shout();
+}
+```
+```java
+// 具体产品
+public class Cat extends Animal {
+	@Override
+	void shout() {
+		System.out.println("喵");
+	}
+}
+public class Dog extends Animal {
+	@Override
+	void shout() {
+		System.out.println("汪汪！");
+	}
+}
+```
+```java
+// 测试
+public class Factory {
+	public static void main(String[] args) {
+		Animal cat = new CatFactory().getAnimal();
+		cat.shout();
+		Animal dog = new DogFactory().getAnimal();
+		dog.shout();
+	}
+}
+```
+## 抽象工厂模式
+> 对工厂方法模式的增加，说直白点就是工厂不在生产单一的产品
+### 职能划分
+> 抽象工厂里类的职能与工厂方法相似，不同点在于有多个产品
+```java
+// 抽象工厂
+public abstract class AnimalFactory {
+	public abstract Animal getAnimal() ;
+	public abstract Toy getToy();
+}
+```
+```java
+// 具体工厂
+public class CatFactory extends AnimalFactory {
+	@Override
+	public Animal getAnimal() {
+		return new Cat();
+	}
+	
+	@Override
+    public Toy getToy() {
+        return new Ball();
+    }
+}
+public class DogFactory extends AnimalFactory {
+	@Override
+	public Animal getAnimal() {
+		return new Dog();
+	}
+	@Override
+    public Toy getToy() {
+        return new Plume();
+    }
+}
+```
+```java
+// 抽象产品-动物
+public abstract class Animal {
+	abstract void shout();
+}
+```
+```java
+// 具体产品-动物
+public class Cat extends Animal {
+	@Override
+	void shout() {
+		System.out.println("喵");
+	}
+}
+public class Dog extends Animal {
+	@Override
+	void shout() {
+		System.out.println("汪汪！");
+	}
+}
+```
+```java
+// 抽象产品-玩具
+public abstract class Toy {
+	abstract void play();
+}
+```
+```java
+// 具体产品-动物玩具
+public class Ball extends Toy {
+	@Override
+	void play() {
+		System.out.println("球！");
+	}
+}
+public class Plume extends Toy {
+	@Override
+	void play() {
+		System.out.println("羽毛！");
+	}
+}
+```
+```java
+// 测试
+public class Factory {
+	public static void main(String[] args) {
+	    AnimalFactory f = new CatFactory();
+		Animal cat = f.getAnimal();
+		Animal toy = f.getToy();
+		cat.shout();
+		toy.play();
+		
+	}
+}
 ```
 ## 参考
 1. https://blog.csdn.net/jason0539/article/details/23020989
+2. https://blog.csdn.net/hguisu/article/details/7505909
