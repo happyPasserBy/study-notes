@@ -1,4 +1,4 @@
-#Spring
+# Spring
 ## SpringIOC
 1. IOC定义: 控制反转(inversion of Control),在使用原始方法编写项目时，流程是 controller层new Service,Service层new Dao，
     层层手动创建，层层依赖。而采用IOC就可以将每层的new操作交给IOC容器去做，只要编写相应的配置并告诉它我需要什么就可以达到之前的功能，
