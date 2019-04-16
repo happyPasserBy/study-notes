@@ -43,7 +43,15 @@
 * 若有主键则主键作为密集索引
 * 若没有主键被定义。该表的第一个非空索引作为密集索引
 * 若以上条件都不满足，则innodb内部会生成一个隐藏主键作为密集索引
-...未完待续
+## 最左匹配原则
+* mysql会一直向右匹配直到遇到范围查询(>,<,between,like)就停止匹配，比如a=3 and b=4 and c>5 and d=6,如果索引的建立顺序是
+(a,b,c,d)，则d不会用到索引，如果建立的顺序是(a,b,d,c)则都可以用到索引，a,b,d的顺序可以任意调整
+* = 和 in 可以乱序，比如 a=1 and b=2 and c=3，(a,b,c)索引的建立可以任意顺序，mysql的查询优化器会优化成索引可以识别的形式 
+
+
+
+
+.....未完待续
 ## 参考链接
 1. https://www.zhihu.com/people/xiao-hui-68-47/posts?page=2
 2. https://coding.imooc.com/learn/list/303.html
