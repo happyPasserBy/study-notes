@@ -105,7 +105,7 @@ OK
 ### RDB(快照)
 > 制作快照生成RDB文件有两种方式SAVE与BGSAVE,Redis服务器启动时会自动载入安装目录的RDB文件，载入RDB文件期间Redis服务器处于阻塞状态
 ##### SAVE
-> SAVE命令会阻塞Redis的服务器进程，知道RDB文件被创建完毕
+> SAVE命令会阻塞Redis的服务器进程，直到RDB文件被创建完毕
 ##### BGSAVE
 > BGSAVE命令首先检查有没有已经fork出的子进程或者正在执行的AOF任务，如果有则抛出错误,没有则fork出一个子进程来创建RDB文件且不会阻塞Redis主进程，
 * Redis默认自动执行的的BGSAVE配置，
