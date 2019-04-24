@@ -170,8 +170,8 @@ spring:
 #### 3.1.1 RestTemplate
 * 直接使用RestTemplate调用，简单粗暴
 ```
-RestTemplate restTemplate = new restTemplate();
-String response = restTemplate.getForObject('http://xxxx:8080/xxx',String.class);
+RestTemplate restTemplate = new RestTemplate();
+String response = restTemplate.getForObject("http://xxxx:8080/xxx",String.class);
 ```
 * 利用loadBalancerClient根据注册名获取地址，灵活多变
 ```
