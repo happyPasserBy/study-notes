@@ -251,6 +251,173 @@ public String test(){
 > 根据策略选取有效的服务
 * 服务监听
 > 删除异常的实例
+### 2.1 统一配置中心config-server
+> 
+![](spring_cloud_config_1.png)
+
+#### 2.1.1 创建配置中心
+* 初始化项目，除了选择依赖不同其它均与Eureka创建方式相同
+![](spring_cloud_config_2.png)
+* pom
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.4.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.study</groupId>
+    <artifactId>config</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>config</name>
+    <description>Demo project for Spring Boot</description>
+    <properties>
+        <java.version>1.8</java.version>
+        <spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+```
+* 添加注解以便添加到Eureka注册中心
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+public class ConfigApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigApplication.class, args);
+    }
+}
+```
+* 在个人的github仓库创建空白项目后添加一个简单的配置文件
+![](spring_cloud_config_3.png)
+* yml中添加配置
+```
+spring:
+  application:
+    name: config
+  cloud:
+    config:
+      server:
+        git:
+          # 存放配置的仓库地址
+          uri: git@github.com:happyPasserBy/spring_config_test.git
+          # 如果为私有仓库需添加用户名与密码
+          username: xxxxx
+          password: xxxxx
+          # 拉取远程文件后的本地存储地址
+          basedir: xxxxx
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8081
+```
+#### 2.1.2 从配置中心获取资源
+* pom中添加依赖
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-config-client</artifactId>
+</dependency>
+```
+* 项目启动类
+```
+@SpringBootApplication
+@EnableDiscoveryClient(注意)
+@EnableFeignClients
+public class ProductApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ProductApplication.class, args);
+	}
+}
+```
+* 将application.yml改名为bootstrap.yml,并修改其内容
+```yml
+spring:
+  application:
+    name: product
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: CONFIG
+      profile: dev
+# 如没有设置defaultZone，则会默认向本机8761建立连接(待验证)
+# eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka/
+#    register-with-eureka: false
+
+
+```
+* 编写测试代码获取env
+```
+@RestController
+public class ServerController {
+    @Value("env")
+    private String env;
+    @GetMapping("/msg")
+    public String msg() {
+        return env;
+    }
+}
+```
+
+#### 2.1.3 配置文件
+##### 2.1.3.1 访问规则
+```
+/{name}-{profiles}.yml
+/{label}/{name}-{profiles}.yml
+```
+* name: 服务名
+* profiles: 当前环境，此字段根据配置文件中的env来确定如何访问
+* label: 当前分支，默认是master
+* 浏览器输入 http://localhost:端口/远程配置文件名称-a.yml(如：http://localhost:8081/product-a.yml)进行测试，返回配置文件则成功
+##### 2.1.3.2 合并规则
+* 获取配置文件时有配置文件的合并规则........待补充
+
 ### 分布式
 > 利用物理架构，由多个自治元素，不共享内存，但通过网路发送消息合作
 
