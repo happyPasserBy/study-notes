@@ -417,7 +417,45 @@ public class ServerController {
 * 浏览器输入 http://localhost:端口/远程配置文件名称-a.yml(如：http://localhost:8081/product-a.yml)进行测试，返回配置文件则成功
 ##### 2.1.3.2 合并规则
 * 获取配置文件时有配置文件的合并规则........待补充
+#### 2.1.4 自动拉取最新的配置文件
+* 图示
 
+![](spring_cloud_config_4.png)
+* 启动RabbitMQ
+* 启动在配置中心与业务项目(porduct举例)添加依赖
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+</dependency>
+```
+* 在配置中心的bootstrap.yml添加一下配置
+```yml
+spring:
+  rabbitmq:
+    host: 192.168.1.10
+    port: 5672
+    username: guest
+    password: guest
+management:
+  endpoints:
+    web:
+      expose: "*"
+```
+* 查看MQ是否已经连接
+![](spring_cloud_config_5.png)
+* 更改git仓库中的配置代用bus-refresh接口通知配置中心拉取资源
+> http://ip:端口/actuator/bus-refresh
+......以失败告终，调用bus-refresh后配置中心资源已经更新，但MQ里没有消息从而product配置文件也没有更新
+### 2.3 CenOS下安装docker及其它中间件
+#### docker参考链接
+* docker version: 1.13.1
+* CentOS version: 3.10.0-514.10.2.el7.x86_64
+* http://www.runoob.com/docker/docker-image-usage.html
+* https://www.cnblogs.com/yufeng218/p/8370670.html
+#### docker下安装RabbitMQ
+* docker run -d --hostname my-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3.7.3-management
+* 浏览器访问 http://机器IP:15672 默认密码guest
 ### 分布式
 > 利用物理架构，由多个自治元素，不共享内存，但通过网路发送消息合作
 
