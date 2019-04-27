@@ -1,5 +1,5 @@
 # 了解微服务
-## 1. 多种多样架构风格
+## 1. 多种多样的架构风格
 ### 1.1 传统的单体架构
 > 一个项目包含多个业务模块，打包后部署到同一机器上
 
@@ -456,6 +456,67 @@ management:
 #### docker下安装RabbitMQ
 * docker run -d --hostname my-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3.7.3-management
 * 浏览器访问 http://机器IP:15672 默认密码guest
+* 启动RabbitMQ
+```
+service docker start
+docker run -d --hostname my-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3.7.3-management
+
+docker ps // 此命令出现my-rabbit进程说明成功
+// 启动redis docker run -d -p 6379:6379 redis:4.0.8 
+```
+### 2.4 微服务中的门神-Zuul
+#### 2.4.1 Zuul的初始化
+* 与其它IDEA创建spring项目相似，但选择依不同
+![](spring_cloud_zuul_2.png)
+* 修改properties.application为bootstrap.yml，内容如下
+```yml
+// 配置沿用之前Spring Cloud笔记内容 
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: CONFIG
+      profile: dev
+  rabbitmq:
+    host: 192.168.1.10
+    port: 5672
+    username: guest
+    password: guest
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8082
+```
+* 启动类添加Zuul注解
+```
+@SpringBootApplication
+@EnableZuulProxy
+public class ZuulApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ZuulApplication.class, args);
+    }
+}
+```
+#### 2.4.1 网关的请求流程
+![](spring_cloud_zuul_1.png)
+
+#### 2.4.1 Zuul的应用场景
+* 限流
+* 鉴权
+* 参数校验
+* 请求转发
+* 统计
+* 日志
+
+### 2.5 Hystrix-服务降级与断路器
+
+### 2.6 Sleuth与Zipkin-链路监控
+
 ### 分布式
 > 利用物理架构，由多个自治元素，不共享内存，但通过网路发送消息合作
 
