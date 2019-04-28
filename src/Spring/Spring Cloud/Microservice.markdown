@@ -22,18 +22,18 @@
 * 分布式管理
 
 ![](spring_cloud_2.png)
-#### 1.3 常用的微服务组件
+#### 1.2.2 常用的微服务组件
 * 服务注册与发现
 * 服务网关
 * 后端服务
 * 前端服务
-#### 1.4 如何治理多个微服务？
+#### 1.2.3 如何治理多个微服务？
 * 阿里系: Dubbo、Zookeeper、SpringMVC......
 * SpringCloud: Spring Cloud NetFlix Eureka、SpringBoot...... 
 ## 2. Spring Cloud
 > SpringCloud 是一个开发工具集，包含多个子项目，利用SpringBoot的开发便利性，对NetFlix开源组件进行分装，简化了分布式开发，
 ### 2.1 Eureka
-> 基于NetFlix Eureka做了二次分装，由Eureka Servcer(注册中心)与Eureka Client(服务发现)组成,具有心跳检测、健康检查、负载均衡等功能
+> 基于NetFlix Eureka做了二次封装，由Eureka Servcer(注册中心)与Eureka Client(服务发现)组成,具有心跳检测、健康检查、负载均衡等功能
 #### 2.1.1 创建一个简单的Eureka注册中心
 * 初始化Eureka(注意版本)
 ![](spring_cloud_3.png)
