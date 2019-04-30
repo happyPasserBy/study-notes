@@ -31,16 +31,285 @@
 * Auto Delete: 当前Exchange上没有任何队列时是否自动删除该Exchange
 * Internal: 当前Exchange是否用于RabbitMQ内部使用，默认为false
 * Arguments: 扩展参数，用于扩展AMQP协议时使用
-#### Direct Exchange
-> 发送到DirectExchange的消息，根据消息的RoutingKey发送到与RoutingKey名称相同的Queue中
+#### 1.4.2 Direct Exchange
+> 发送到DirectExchange的消息，根据消息的RoutingKey与BindingKey进行匹配然后传递到Queue中
 
 ![](rabbitmq_4.png)
-#### Topic Exchange
+
+```
+// Producer
+//1 创建ConnectionFactory
+ConnectionFactory connectionFactory = new ConnectionFactory();
+connectionFactory.setHost("192.168.11.76");
+connectionFactory.setPort(5672);
+connectionFactory.setVirtualHost("/");
+//2 创建Connection
+Connection connection = connectionFactory.newConnection();
+//3 创建Channel
+Channel channel = connection.createChannel();  
+//4 声明
+String exchangeName = "test_direct_exchange";
+String routingKey = "test.direct";
+//5 发送
+String msg = "Hello World RabbitMQ 4  Direct Exchange Message 111 ... ";
+channel.basicPublish(exchangeName, routingKey , null , msg.getBytes()); 	
+```
+```
+// Consumer
+ConnectionFactory connectionFactory = new ConnectionFactory() ;  
+connectionFactory.setHost("192.168.11.76");
+connectionFactory.setPort(5672);
+connectionFactory.setVirtualHost("/");
+
+connectionFactory.setAutomaticRecoveryEnabled(true);
+connectionFactory.setNetworkRecoveryInterval(3000);
+Connection connection = connectionFactory.newConnection();
+
+Channel channel = connection.createChannel();  
+//4 声明
+String exchangeName = "test_direct_exchange";
+String exchangeType = "direct";
+String queueName = "test_direct_queue";
+String routingKey = "test.direct";
+//表示声明了一个交换机
+channel.exchangeDeclare(exchangeName, exchangeType, true, false, false, null);
+//表示声明了一个队列
+channel.queueDeclare(queueName, false, false, false, null);
+//建立一个绑定关系:
+channel.queueBind(queueName, exchangeName, routingKey);
+
+//durable 是否持久化消息
+QueueingConsumer consumer = new QueueingConsumer(channel);
+//参数：队列名称、是否自动ACK、Consumer
+channel.basicConsume(queueName, true, consumer);  
+//循环获取消息  
+while(true){  
+    //获取消息，如果没有消息，这一步将会一直阻塞  
+    Delivery delivery = consumer.nextDelivery();  
+    String msg = new String(delivery.getBody());    
+    System.out.println("收到消息：" + msg);  
+} 
+```
+#### 1.4.3 Topic Exchange
+> 与Direct Exchange相似，但Binding Key可以使用匹配符号
 
 ![](rabbitmq_3.png)
-# 注意
+##### 1.4.3.1 匹配符号
+* "#": 匹配一个或多个词，如"log.#"匹配 “log.info” "log.info.a"
+* "*": 匹配一个词，如"log.a"
+```
+//Producer
+//1 创建ConnectionFactory
+ConnectionFactory connectionFactory = new ConnectionFactory();
+connectionFactory.setHost("http://192.168.1.9");
+connectionFactory.setPort(5672);
+connectionFactory.setVirtualHost("/");
+//2 创建Connection
+Connection connection = connectionFactory.newConnection();
+//3 创建Channel
+Channel channel = connection.createChannel();
+//4 声明
+String exchangeName = "test_topic_exchange";
+String routingKey1 = "user.save";
+String routingKey2 = "user.update";
+String routingKey3 = "user.delete.abc";
+//5 发送
+String msg = "Hello World RabbitMQ 4 Topic Exchange Message ...";
+channel.basicPublish(exchangeName, routingKey1 , null , msg.getBytes());
+channel.basicPublish(exchangeName, routingKey2 , null , msg.getBytes());
+channel.basicPublish(exchangeName, routingKey3 , null , msg.getBytes());
+channel.close();
+connection.close();
+```
+```
+//Consumer
+ConnectionFactory connectionFactory = new ConnectionFactory() ;  
+connectionFactory.setHost("http://192.168.1.9");
+connectionFactory.setPort(5672);
+connectionFactory.setVirtualHost("/");
+connectionFactory.setAutomaticRecoveryEnabled(true);
+connectionFactory.setNetworkRecoveryInterval(3000);
+Connection connection = connectionFactory.newConnection();
+Channel channel = connection.createChannel();  
+//4 声明
+String exchangeName = "test_topic_exchange";
+String exchangeType = "topic";
+String queueName = "test_topic_queue";
+//String routingKey = "user.*";
+String routingKey = "user.*";
+// 1 声明交换机 
+channel.exchangeDeclare(exchangeName, exchangeType, true, false, false, null);
+// 2 声明队列
+channel.queueDeclare(queueName, false, false, false, null);
+// 3 建立交换机和队列的绑定关系:
+channel.queueBind(queueName, exchangeName, routingKey);
+//durable 是否持久化消息
+QueueingConsumer consumer = new QueueingConsumer(channel);
+//参数：队列名称、是否自动ACK、Consumer
+channel.basicConsume(queueName, true, consumer);  
+//循环获取消息  
+while(true){  
+    //获取消息，如果没有消息，这一步将会一直阻塞  
+    Delivery delivery = consumer.nextDelivery();  
+    String msg = new String(delivery.getBody());    
+    System.out.println("收到消息：" + msg);  
+} 
+```
+### 1.4.4 Fanout Exchange
+> 此模式的交换机不需要路由键，队列与交换机存在绑定关系，交换机接收到消息后会被转发到与该交换机绑定的所有队列上
+![](rabbitmq_5.png)
+```
+// Producer
+//1 创建ConnectionFactory
+ConnectionFactory connectionFactory = new ConnectionFactory();
+connectionFactory.setHost("192.168.11.76");
+connectionFactory.setPort(5672);
+connectionFactory.setVirtualHost("/");
+//2 创建Connection
+Connection connection = connectionFactory.newConnection();
+//3 创建Channel
+Channel channel = connection.createChannel();  
+//4 声明
+String exchangeName = "test_fanout_exchange";
+//5 发送
+for(int i = 0; i < 10; i ++) {
+    String msg = "Hello World RabbitMQ 4 FANOUT Exchange Message ...";
+    channel.basicPublish(exchangeName, "", null , msg.getBytes()); 			
+}
+channel.close();  
+connection.close();  
+```
+```
+// Consumer
+ConnectionFactory connectionFactory = new ConnectionFactory() ;  
+connectionFactory.setHost("192.168.11.76");
+connectionFactory.setPort(5672);
+connectionFactory.setVirtualHost("/");
+connectionFactory.setAutomaticRecoveryEnabled(true);
+connectionFactory.setNetworkRecoveryInterval(3000);
+Connection connection = connectionFactory.newConnection();
+Channel channel = connection.createChannel();  
+String exchangeName = "test_fanout_exchange";
+String exchangeType = "fanout";
+String queueName = "test_fanout_queue";
+String routingKey = "";	//不设置路由键
+channel.exchangeDeclare(exchangeName, exchangeType, true, false, false, null);
+channel.queueDeclare(queueName, false, false, false, null);
+channel.queueBind(queueName, exchangeName, routingKey);
+//durable 是否持久化消息
+QueueingConsumer consumer = new QueueingConsumer(channel);
+//参数：队列名称、是否自动ACK、Consumer
+channel.basicConsume(queueName, true, consumer); 
+//循环获取消息  
+while(true){  
+    //获取消息，如果没有消息，这一步将会一直阻塞  
+    Delivery delivery = consumer.nextDelivery();  
+    String msg = new String(delivery.getBody());    
+    System.out.println("收到消息：" + msg);  
+} 
+```
+#### 1.4.5 Headers Exchange
+......
+### 1.5 Confirm
+> 生产者发送消息到MQ后，MQ会对这条消息进行应答
+```
+// Producer
+//1 创建ConnectionFactory
+ConnectionFactory connectionFactory = new ConnectionFactory();
+connectionFactory.setHost("192.168.11.76");
+connectionFactory.setPort(5672);
+connectionFactory.setVirtualHost("/");
+//2 获取C	onnection
+Connection connection = connectionFactory.newConnection();
+//3 通过Connection创建一个新的Channel
+Channel channel = connection.createChannel();
+//4 指定我们的消息投递模式: 消息的确认模式 
+channel.confirmSelect();
+String exchangeName = "test_confirm_exchange";
+String routingKey = "confirm.save";
+//5 发送一条消息
+String msg = "Hello RabbitMQ Send confirm message!";
+channel.basicPublish(exchangeName, routingKey, null, msg.getBytes());
+//6 添加一个确认监听
+channel.addConfirmListener(new ConfirmListener() {
+    @Override
+    public void handleNack(long deliveryTag, boolean multiple) throws IOException {
+        System.err.println("-------no ack!-----------");
+    }
+    @Override
+    public void handleAck(long deliveryTag, boolean multiple) throws IOException {
+        System.err.println("-------ack!-----------");
+    }
+});
+```
+```
+// Customer
+//1 创建ConnectionFactory
+ConnectionFactory connectionFactory = new ConnectionFactory();
+connectionFactory.setHost("192.168.11.76");
+connectionFactory.setPort(5672);
+connectionFactory.setVirtualHost("/");
+
+//2 获取C	onnection
+Connection connection = connectionFactory.newConnection();
+
+//3 通过Connection创建一个新的Channel
+Channel channel = connection.createChannel();
+
+String exchangeName = "test_confirm_exchange";
+String routingKey = "confirm.#";
+String queueName = "test_confirm_queue";
+
+//4 声明交换机和队列 然后进行绑定设置, 最后制定路由Key
+channel.exchangeDeclare(exchangeName, "topic", true);
+channel.queueDeclare(queueName, true, false, false, null);
+channel.queueBind(queueName, exchangeName, routingKey);
+
+//5 创建消费者 
+QueueingConsumer queueingConsumer = new QueueingConsumer(channel);
+channel.basicConsume(queueName, true, queueingConsumer);
+
+while(true){
+    Delivery delivery = queueingConsumer.nextDelivery();
+    String msg = new String(delivery.getBody());
+    
+    System.err.println("消费端: " + msg);
+}
+```
+#### 注意
 * 生产者投递消息时需指定Exchange和RoutingKey，如没有指定Exchange则会走RabbitMQ的默认Exchange,然后用RoutingKey与匹配是否有
 同名的Queue,如果有则进行投递没有则投递失败
+## 2。如何保证消息100%投递成功
+### 2.1 什么是消息的可靠性？
+* 消息的成功发出
+* MQ节点成功接收
+* 发送端接收到MQ节点的确认应答
+* 完善的消息补偿机制
+### 2.2 可靠性投递——方案（一）
+> 将消息存储到数据库中，并为该消息添加状态字段(已发送、已确认、已消费.....)，启动定时任务轮训数据库将发送失败的消息再次发送
+![](rabbitmq_6.png)
+1. 业务数据与消息数据入库
+2. 发送消息到MQ
+3. 接收MQ对消息的响应
+4. 将数据库中消息对应的状态改为已确认...
+5. 启动定时任务轮训数据库，收集没有确认的消息或投递间隔大于某个时间点的消息
+6. 将收集好的消息进行重发并记录重发次数
+7. 对于超过固定重发次数的消息进行业务处理
+### 2.3 可靠性投递——方案（二）
+> 消息的延迟投递，做二次确认，回调检查
 
+![](rabbitmq_7.png)
+1. upstream service发送业务消息
+2. upstream service发送用于检测业务消息可靠性的消息(有点绕)
+3. downstream service接收业务消息并处理
+4. downstream service处理完业务消息后发送业务确认消息
+5. callback service接收业务确认消息并入库
+6. callback service接收业务检测消息(由upstream service发起的)检查数据库中的确认状态，如已被消费则返回成功，否则发送RPC请求通知upstream service业务消息投递失败
+## 3. 幂等性保障
+### 3.1 消息重读消费的问题
+#### 3.1.1 唯一ID + 指纹码机制 
+......
+#### 3.1.2 Redis原子性
+......
 ## 参考
 1. https://coding.imooc.com/class/chapter/262.html#Anchor
