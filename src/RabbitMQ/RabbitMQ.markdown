@@ -210,7 +210,7 @@ while(true){
 ```
 #### 1.4.5 Headers Exchange
 ......
-### 1.5 Confirm
+### 1.5 可靠性保障——Confirm
 > 生产者发送消息到MQ后，MQ会对这条消息进行应答
 ```
 // Producer
@@ -276,6 +276,8 @@ while(true){
     System.err.println("消费端: " + msg);
 }
 ```
+### 1.6 可靠性保障——Return
+> 生产端添加Return Listener用于监听发送的消息匹配不到Exchange或RoutingKey的情况
 #### 注意
 * 生产者投递消息时需指定Exchange和RoutingKey，如没有指定Exchange则会走RabbitMQ的默认Exchange,然后用RoutingKey与匹配是否有
 同名的Queue,如果有则进行投递没有则投递失败
@@ -305,11 +307,28 @@ while(true){
 4. downstream service处理完业务消息后发送业务确认消息
 5. callback service接收业务确认消息并入库
 6. callback service接收业务检测消息(由upstream service发起的)检查数据库中的确认状态，如已被消费则返回成功，否则发送RPC请求通知upstream service业务消息投递失败
-## 3. 幂等性保障
-### 3.1 消息重读消费的问题
-#### 3.1.1 唯一ID + 指纹码机制 
+### 2.4 幂等性保障
+#### 2.4.1 消息重读消费的问题
+##### 2.4.1.1 唯一ID + 指纹码机制 
 ......
-#### 3.1.2 Redis原子性
+##### 2.4.1.2 Redis原子性
 ......
+## 3. RabbitMQ的一些高级特性
+### 3.1消费端限流
+> RabbitMQ提供了一种qos功能，即在非自动确认消息的前提下，如果一定数据的消息未被确认前，不消费新的消息
+#### 3.1.1 void BasicQos(unit perfetchSize,ushort prefetchCount,bool global)
+* unit perfetchSize: 限制消息的大小(MB)
+* ushort prefetchCount: 一次能处理多少条消息
+* global: true限制于channel,false限制于consumer
+### 3.2 TTL
+> 消息的存活时间
+### 3.3 死信队列(DLX)
+> 当一个消息在一个队列中变成死信后，它能被重新publish到另一个Exchange并路由到对应的Queue中
+#### 3.3.1 消息变成死信的情况
+* 消息被拒绝(basic.reject/basic.nack)并且requeue=false
+* 消息TTL过期
+* 队列达到最大长度
+
+
 ## 参考
 1. https://coding.imooc.com/class/chapter/262.html#Anchor
