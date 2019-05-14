@@ -29,9 +29,7 @@
                package java.util;
                public class HashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, java.io.Serializable {
                    static final long serialVersionUID = -5024744406713321676L;
-               
                    private transient HashMap<E,Object> map;
-               
                    // Dummy value to associate with an Object in the backing Map
                    private static final Object PRESENT = new Object();
                    //........
