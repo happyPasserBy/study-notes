@@ -48,6 +48,28 @@
 (a,b,c,d)，则d不会用到索引，如果建立的顺序是(a,b,d,c)则都可以用到索引，a,b,d的顺序可以任意调整
 * = 和 in 可以乱序，比如 a=1 and b=2 and c=3，(a,b,c)索引的建立可以任意顺序，mysql的查询优化器会优化成索引可以识别的形式 
 
+## 常用索引
+### UNIQUE 唯一索引
+> 保证数据唯一性，null值可重复
+
+```
+// 与表一同创建
+create table `tb_text`(
+  `id` int(11) auto_increment,
+  `name` varchar(20) not null,
+  `age` tinyint default null,
+  unique key `tname` (`name`),
+  primary key (`id`)
+) ENGINE = InnoDB CHARACTER SET = utf8
+```
+```
+// 表创建后增加
+create unique index `tname` on tb_text(`name`)
+```
+```
+//删除索引
+alter table `tb_text` drop index tname
+```
 
 
 
