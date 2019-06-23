@@ -14,7 +14,7 @@
 4. 事务的隔离级别(SELECT @@tx_isolation)
     * read-uncommitted(脏读)
         1. 现象: A事务读到了B事务未提交的数据
-        2. 解决: set session tx_isolation='read-uncommitted';
+        2. 解决: set session tx_isolation='read-commited';
     * read-commited(不可重复读)
         1. 现象: A开启事务读取数据，如果中途B开启事务并在A事务提交之前提交，A在此读取的数据与第一次读取的数据不同
         2. 解决: set session tx_isolation='repeatable-read';
