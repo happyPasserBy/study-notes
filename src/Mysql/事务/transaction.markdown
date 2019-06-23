@@ -11,7 +11,7 @@
     * 一致性: 事务执行前后，数据的完整性
     * 持久性: 事务执行成功，数据将持久的保存的磁盘上
     * 隔离性: 事务在执行期间不应受到其他事务的影响
-4. 事务的隔离级别
+4. 事务的隔离级别(SELECT @@tx_isolation)
     * read-uncommitted(脏读)
         1. 现象: A事务读到了B事务未提交的数据
         2. 解决: set session tx_isolation='read-uncommitted';
