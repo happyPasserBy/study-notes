@@ -1,6 +1,6 @@
 # Docker
 ## 1.什么是Docker
-> Docker是linux容器，隔离linux进程，Docker 将应用程序与该程序的依赖，打包在一个文件里面。运行这个文件，就会生成一个虚拟容器。程序在这个虚拟容器里运行，就好像在真实的物理机上运行一样。有了 Docker，就不用担心环境问题
+> Docker是linux中的一个容器，隔离linux进程，Docker 将应用程序与该程序的依赖，打包在一个文件里面。运行这个文件，就会生成一个虚拟容器。程序在这个虚拟容器里运行，就好像在真实的物理机上运行一样。有了 Docker，就不用担心环境问题
 ## 2.安装Docker(CentOS)
 1. 删除老版本Docker
 ```
@@ -32,9 +32,15 @@ yum install docker-ce docker-ce-cli containerd.io
 ```
 docker version
 ```
-
+## 3. Docker Engin
+> Docker Engin用于将应用App与物理设备隔离开来
+* DockerD(后台进程)
+* REST API SERVER
+* CLI接口
 ## 3.Image文件
-> Docker把应用程序及其依赖打包在Image文件里。只有通过这个文件才能生成Docker容器。Image文件可以看作是容器模板，Docker根据Image文件生成实例。同一个Image文件可以生成多个实例
+> Docker把应用程序及其依赖打包在Image文件里。只有通过这个文件才能生成Docker容器。Image文件可以看作是容器模板，Docker根据Image文件生成实例。同一个Image文件可以生成多个实例，Image是分层了,并且每一层都可以添加删除改变文件,Image本身是只读的
+
+![](./images/docker_image.png)
 ### 3.1常用命令
 * 列出所有镜象
 ```
