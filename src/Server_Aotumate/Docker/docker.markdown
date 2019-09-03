@@ -58,26 +58,32 @@ docker image rm [image name]
 ```
 
 ## 4. Docker简单应用-redis
-### 4.1 拉取redis镜像
+* 拉取redis镜像
 ```
 docker pull redis
 ```
-### 4.2启动redis实例一
+* 启动redis实例一
 ```
 docker run --name some-redis -d redis
 ```
-### 4.3 查看docker实例
+* 启动redis实例二，映射端口设置redis密码
 ```
-docker container ls 
+docker run --name redis -p 6379:6379 -d redis --requirepass "778899"
+```
+* 4.3 查看docker启动实例
+```
 docker ps
-
 ```
+* 查看docker全部实例
+```
+docker ps -a
+```
+
 * -d: 后台运行
 * -v: 数据存放目录
 * --name: 容器名称
 * --requirepass: 密码
 * -p: 端口
-
 
 
 ## 参考
