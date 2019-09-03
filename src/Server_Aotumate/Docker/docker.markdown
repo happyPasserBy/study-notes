@@ -41,6 +41,12 @@ docker version
 > Docker把应用程序及其依赖打包在Image文件里。只有通过这个文件才能生成Docker容器。Image文件可以看作是容器模板，Docker根据Image文件生成实例。同一个Image文件可以生成多个实例，Image是分层了,并且每一层都可以添加删除改变文件,Image本身是只读的
 
 ![](./images/docker_image.png)
+
+## 3.1获取Image(一) Dovkerfile
+
+## 3.2获取Image(二) Pull from Registry
+> 从Docker Hub拉去Image
+
 ### 3.1常用命令
 * 列出所有镜象
 ```
