@@ -59,10 +59,11 @@
 
 ## 5.常用命令
 * 检查防火墙状态：service iptables status
-* 开启防火墙(临时): service iptables start
-* 关闭防火墙(临时): service iptables stop
-* 开启防火墙(永久): chkconfig iptables on
-* 关闭防火墙(永久): chkconfig iptables off
+* 开启防火墙(临时,即使生效): service iptables start
+* 关闭防火墙(临时,即使生效): service iptables stop
+* 开启防火墙(永久,临时生效): chkconfig iptables on
+* 关闭防火墙(永久,临时生效): chkconfig iptables off
+* 查看所有规则: iptables -L -n -v
 * iptables命令格式: iptables [-t table] COMMAND chain [options] [-j] ACTION
 ```
 -t table: 用于指定最那个表操作, 主要是filter, nat, managle, 默认为filter
