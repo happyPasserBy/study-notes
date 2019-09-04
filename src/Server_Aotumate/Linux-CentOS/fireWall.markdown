@@ -72,6 +72,7 @@ options: 定义数据包中的特征, 比如源ip，目的ip，源端口，目�
 -j: 定义匹配到策略数据包的执行动作, 常用ACCEPT, DROP, REJEC
 示例-对INPUT策略filter表中插入10001端口放行的规则: iptables -A INPUT -p tcp --dport 10001 -j ACCEPT
 ```
+* https://wangchujiang.com/linux-command/c/iptables.html
 
 ## 参考
 1. https://www.jianshu.com/p/207a1c79cfa1
