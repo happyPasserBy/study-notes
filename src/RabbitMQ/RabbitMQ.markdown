@@ -42,9 +42,9 @@ lsof -i:15672
 
 spring:
   rabbitmq:
-    password: admin
-    username: admin
-    addresses: 104.168.234.140
+    password: 
+    username: 
+    addresses: 
     port: 5672
 ```
 ### 1.4 核心——交换机
