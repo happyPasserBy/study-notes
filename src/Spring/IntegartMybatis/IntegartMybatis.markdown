@@ -1,4 +1,4 @@
-# SpringBoot集成Mybatis并完
+# SpringBoot集成Mybatis
 ## 1.安装依赖
 ```
 <!-- mybatis -->
