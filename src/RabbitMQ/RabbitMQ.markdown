@@ -22,7 +22,31 @@
 ![](rabbitmq_1.png)
 
 ![](rabbitmq_2.png)
+### 1.4 安装RabbitMQ
+#### 1.4.1 服务器安装
+```
+docker pull rabbitmq
+docker run -d --hostname my-rabbit --name rabbit -e RABBITMQ_DEFAULT_USER=admin -e RABBITMQ_DEFAULT_PASS=admin -p 15672:15672 -p 5672:5672 rabbitmq:management
+docker ps
+lsof -i:15672
 
+```
+#### 1.4.2 客户端安装
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-amqp</artifactId>
+</dependency>
+```
+```
+
+spring:
+  rabbitmq:
+    password: admin
+    username: admin
+    addresses: 104.168.234.140
+    port: 5672
+```
 ### 1.4 核心——交换机
 #### 1.4.1 交换机属性常用
 * Name: 交换机属性
@@ -334,6 +358,7 @@ while(true){
 * 队列达到最大长度
 
 ## 参考
-1. https://coding.imooc.com/class/chapter/262.html#Anchor
-2. https://www.cnblogs.com/javalyy/p/8882144.html
-3. https://segmentfault.com/a/1190000020035137#articleHeader6
+1. https://www.rabbitmq.com/getstarted.html
+2. https://coding.imooc.com/class/chapter/262.html#Anchor
+3. https://www.cnblogs.com/javalyy/p/8882144.html
+4. https://segmentfault.com/a/1190000020035137#articleHeader6
