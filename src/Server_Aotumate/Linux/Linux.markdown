@@ -99,6 +99,12 @@ man ls
 * -f: 指定打包后的文件名
 * -x: 解压缩
 * -z: 压缩为.tar.gz格式
+## 1.7 服务命令
+> systemctl [选项] [服务]
+* start: 启动
+* stop: 停止
+* status: 当前状态
+* restart: 重启
 ## 参考
 1. https://www.imooc.com/learn/175
 1. https://www.cnblogs.com/yoke/p/7217019.html
