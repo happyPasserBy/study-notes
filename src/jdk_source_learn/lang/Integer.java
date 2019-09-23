@@ -142,14 +142,18 @@ public final class Integer extends Number implements Comparable<Integer> {
         boolean negative = (i < 0);
         int charPos = 32;
 
+        // 统一转为负数方便处理
         if (!negative) {
             i = -i;
         }
 
+        // 小于说明数值比进制数大需转换
         while (i <= -radix) {
+            // 取余计算下标并赋值
             buf[charPos--] = digits[-(i % radix)];
             i = i / radix;
         }
+        // 直接去从字典取值
         buf[charPos] = digits[-i];
 
         if (negative) {
@@ -194,6 +198,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @since   JDK1.0.2
      */
     public static String toHexString(int i) {
+        // 4为 1<<4 16进制
         return toUnsignedString(i, 4);
     }
 
@@ -226,6 +231,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @since   JDK1.0.2
      */
     public static String toOctalString(int i) {
+        // 3为 1<<3 8进制
         return toUnsignedString(i, 3);
     }
 
@@ -251,6 +257,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * @since   JDK1.0.2
      */
     public static String toBinaryString(int i) {
+        // 1为 1<<1 2进制
         return toUnsignedString(i, 1);
     }
 
@@ -261,9 +268,12 @@ public final class Integer extends Number implements Comparable<Integer> {
         char[] buf = new char[32];
         int charPos = 32;
         int radix = 1 << shift;
+        // 计算进制
         int mask = radix - 1;
         do {
+            // 计算下标 todo 为什么是&
             buf[--charPos] = digits[i & mask];
+            // 位移过滤将计算完的数字
             i >>>= shift;
         } while (i != 0);
 
@@ -331,7 +341,9 @@ public final class Integer extends Number implements Comparable<Integer> {
             return "-2147483648";
         int size = (i < 0) ? stringSize(-i) + 1 : stringSize(i); // todo 为什么会+1
         char[] buf = new char[size];
+        // 将数值转为字符类型填充到字节数组中
         getChars(i, size, buf);
+        // 实例化String
         return new String(0, size, buf);
     }
 
@@ -356,16 +368,20 @@ public final class Integer extends Number implements Comparable<Integer> {
 
         // Generate two digits per iteration
         while (i >= 65536) {
-            q = i / 100;
-        // really: r = i - (q * 100);
+            q = i / 100;// 假设 i=65536， /100 是过滤出 0.36 方便后续计算
+            // really: r = i - (q * 100);
+            // 65536 - (41920 +  20960   +  2620) 计算的差值正好为36，位移计算会舍去小数位进行位移 
             r = i - ((q << 6) + (q << 5) + (q << 2));
+            // 赋值继续下次计算
             i = q;
+            // 使用预定义数组将数组转为字符串
             buf [--charPos] = DigitOnes[r];
             buf [--charPos] = DigitTens[r];
         }
 
         // Fall thru to fast mode for smaller numbers
         // assert(i <= 65536, i);
+        // 参考 https://www.jianshu.com/p/44a14079f161
         for (;;) {
             q = (i * 52429) >>> (16+3);
             r = i - ((q << 3) + (q << 1));  // r = i-(q*10) ...
@@ -476,6 +492,7 @@ public final class Integer extends Number implements Comparable<Integer> {
 
         if (len > 0) {
             char firstChar = s.charAt(0);
+            // 判断正负数
             if (firstChar < '0') { // Possible leading "+" or "-"
                 if (firstChar == '-') {
                     negative = true;
@@ -490,6 +507,7 @@ public final class Integer extends Number implements Comparable<Integer> {
             multmin = limit / radix;
             while (i < len) {
                 // Accumulating negatively avoids surprises near MAX_VALUE
+                // 根据进制返回相应的数值
                 digit = Character.digit(s.charAt(i++),radix);
                 if (digit < 0) {
                     throw NumberFormatException.forInputString(s);
@@ -497,10 +515,13 @@ public final class Integer extends Number implements Comparable<Integer> {
                 if (result < multmin) {
                     throw NumberFormatException.forInputString(s);
                 }
+                // 如参数s 为个位数时此时result = 0,
+                // 如参数s 非个位数时将数值转为指定进制数
                 result *= radix;
                 if (result < limit + digit) {
                     throw NumberFormatException.forInputString(s);
                 }
+                // 累加数值 最后根据正负取反
                 result -= digit;
             }
         } else {
@@ -1245,3 +1266,9 @@ public final class Integer extends Number implements Comparable<Integer> {
     /** use serialVersionUID from JDK 1.0.2 for interoperability */
     private static final long serialVersionUID = 1360826667806852920L;
 }
+
+/**
+ * 参考汇总
+ * 1. https://www.jianshu.com/p/44a14079f161
+ * 
+ */
