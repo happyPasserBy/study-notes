@@ -617,6 +617,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      * sun.misc.VM class.
      */
 
+     // Integer 缓存
     private static class IntegerCache {
         static final int low = -128;
         static final int high;
