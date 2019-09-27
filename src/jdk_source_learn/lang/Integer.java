@@ -661,6 +661,8 @@ public final class Integer extends Number implements Comparable<Integer> {
      */
     public static Integer valueOf(int i) {
         assert IntegerCache.high >= 127;
+
+        // 判断是否在缓存中
         if (i >= IntegerCache.low && i <= IntegerCache.high)
             return IntegerCache.cache[i + (-IntegerCache.low)];
         return new Integer(i);
