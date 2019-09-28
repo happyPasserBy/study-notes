@@ -1071,6 +1071,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      *     the specified value is itself equal to zero.
      * @since 1.5
      */
+    // https://blog.csdn.net/jessenpan/article/details/9617749
     public static int highestOneBit(int i) {
         // HD, Figure 3-1
         i |= (i >>  1);
