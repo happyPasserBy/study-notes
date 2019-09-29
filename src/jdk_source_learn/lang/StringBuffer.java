@@ -80,6 +80,7 @@ package java.lang;
  * @see     java.lang.String
  * @since   JDK1.0
  */
+// StringBuffer 大部分功能都是调用 AbstractStringBuilder,值得关注的是大部分方法都被synchronized修饰
  public final class StringBuffer
     extends AbstractStringBuilder
     implements java.io.Serializable, CharSequence
