@@ -1,0 +1,100 @@
+# 装饰者模式(结构性)
+> 在不改变原有对象的基础之上，将功能添加到该对象上，装饰者模式提供了比继承更有弹性的代替方案
+## 1. 使用场景
+* 扩展一个类的功能或给一个类添加职责，并且这些功能可以在动态的撤销
+
+## 2.缺点
+* 会导致创建更多的类，增加程序的复杂性
+* 动态装饰时，多成装饰会更加复杂
+
+## 3.实现
+### 3.1 创建基本抽象类
+```
+public abstract class ABattercake {
+    public abstract String getDesc();
+    public abstract int getCost();
+}
+```
+### 3.2 创建基本抽象类的实现
+```
+public class Battercake extends ABattercake{
+    public String getDesc(){
+        return "煎饼";
+    }
+    public int getCost(){
+        return 8;
+    }
+}
+```
+### 3.3 创建抽象装饰类
+```
+public class AbstractDecorator extends ABattercake{
+    private ABattercake aBattercake;
+
+    public AbstractDecorator(ABattercake aBattercake) {
+        this.aBattercake = aBattercake;
+    }
+
+    @Override
+    public String getDesc() {
+        return this.aBattercake.getDesc();
+    }
+
+    @Override
+    public int getCost() {
+        return this.aBattercake.getCost();
+    }
+}
+```
+### 3.4 创建抽象装饰类的实现1
+```
+public class EggDecorator extends AbstractDecorator{
+    public EggDecorator(ABattercake aBattercake) {
+        super(aBattercake);
+    }
+
+    @Override
+    public String getDesc() {
+        return super.getDesc() + "加一个鸡蛋";
+    }
+
+    @Override
+    public int getCost() {
+        return super.getCost() + 1;
+    }
+}
+```
+### 3.5 创建抽象装饰类的实现2
+```
+public class SusageDecorator extends AbstractDecorator {
+    public SusageDecorator(ABattercake aBattercake) {
+        super(aBattercake);
+    }
+
+    @Override
+    public String getDesc() {
+        return super.getDesc() + "加一个香肠";
+    }
+
+    @Override
+    public int getCost() {
+        return super.getCost() + 2;
+    }
+}
+```
+### 3.6测试
+```
+@org.junit.Test
+public void test5(){
+    ABattercake aBattercake = new Battercake();
+    aBattercake = new EggDecorator(aBattercake);
+    aBattercake = new EggDecorator(aBattercake);
+    aBattercake = new SusageDecorator(aBattercake);
+    System.out.println(aBattercake.getDesc()+":"+aBattercake.getCost());
+}
+```
+
+
+
+
+
