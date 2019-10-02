@@ -1,0 +1,53 @@
+# 享元模式
+> 提供了减少对象数量从而改善应用所需的对象结构的方式，运用共享技术有效地支持大量细粒度的对象
+## 1.实现
+### 1.1
+```
+public interface Employee {
+    void report();
+}
+```
+### 1.2
+```
+@Data
+public class Manage implements Employee{
+    @Override
+    public void report() {
+        System.out.println(this.department + this.reportContent);
+    }
+    private String department;
+    private String reportContent;
+
+    public Manage(String department) {
+        this.department = department;
+    }
+}
+```
+### 1.3
+```
+public class EmployeeFactory {
+    private static final Map<String,Employee> EMPLOYEE_MAP = new HashMap<>();
+    public static Employee getManage(String department){
+        Manage manage = (Manage) EMPLOYEE_MAP.get(department);
+        if(manage == null) {
+            manage = new Manage(department);
+            EMPLOYEE_MAP.put(department,manage);
+        }
+        return manage;
+    }
+}
+```
+### 1.4 测试
+```
+    @org.junit.Test
+    public void test(){
+        String[] departments = {"RD","QA","BD"};
+        for (int i=0; i < 10;i ++) {
+            String department = departments[(int)(Math.random()*departments.length)];
+            Manage m = (Manage)EmployeeFactory.getManage(department);
+            m.setReportContent("开始...");
+            m.report();
+        }
+    }
+```
+
