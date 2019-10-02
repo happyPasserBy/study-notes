@@ -1,0 +1,46 @@
+# 适配器模式
+> 将一个类的接口转换成客户期望的接口,是原本不兼容的类可以一起工作
+## 1. 应用场景
+> 已经存在的类，它的方法和需求不匹配时(方法结果相同或相似)
+## 2.类适配器模式
+### 2.1
+```
+public class Adaptee {
+    public void adapteeRequest(){
+        System.out.println("被适配者");
+    }
+}
+```
+### 2.2
+```
+public interface Target {
+    void request();
+}
+```
+### 2.3
+```
+public class Adapter extends Adaptee implements Target {
+    @Override
+    public void request() {
+        super.adapteeRequest();
+    }
+}
+```
+### 2.4 测试
+```
+@org.junit.Test
+public void test4(){
+    Target target = new ConcreteTarget();
+    target.request();
+}
+```
+### 3.对象适配器
+```
+public class Adapter implements Target {
+    private Adaptee adaptee = new Adaptee();
+    @Override
+    public void request() {
+        adaptee.adapteeRequest();
+    }
+}
+```
