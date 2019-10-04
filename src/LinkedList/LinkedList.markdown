@@ -1,11 +1,5 @@
 # 实现简单链表
 ```
-package com.example.demo.LinkedList;
-
-
-/**
- *
- */
 public class LinkedList<E> {
 
     // 内部节点类
@@ -121,7 +115,27 @@ public class LinkedList<E> {
         }
         return false;
     }
+    public E remove(int index){
+        if (index < 0 || index >= size) {
+            throw new IllegalArgumentException("index 参数错误");
+        }
+        Node node = dummyHead;
+        for (int i = 0; i < index; i++) {
+            node = node.next;
+        }
+        Node removeNode = node.next;
+        node.next = removeNode.next;
+        removeNode.next = null;
+        size--;
+        return removeNode.e;
+    }
 
+    public E removeFirst(){
+        return this.remove(0);
+    }
+    public E removeLast(){
+        return this.remove(this.size-1);
+    }
 
     @Override
     public String toString() {
