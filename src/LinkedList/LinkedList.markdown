@@ -155,3 +155,5 @@ public class LinkedList<E> {
 }
 
 ```
+## 参考
+1. http://www.imooc.com/t/108955

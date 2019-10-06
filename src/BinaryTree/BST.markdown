@@ -1,4 +1,20 @@
-# 实现简单的二叉树
+# 二叉树
+## 1.什么是二叉树
+* 只有一个根节点
+* 每个节点最多有两个孩子节点
+* 每个节点最多有一个父节点
+
+![](https://image-static.segmentfault.com/399/477/3994777747-5c2e0d4a06c2c_articlex)
+## 2.二叉树的分类
+### 2.1 满二叉树
+* 假设树的深度为h,节点数为2^h-1
+* 叶子节点数为2^(h-1)
+
+### 2.2 完全二叉树
+> 假设树的深度为h，除第 h 层外，其它各层 (1～h-1) 的结点数都达到最大个数，第 h 层所有的结点都连续集中在最左边
+
+
+## 2.二叉树的简单实现
 ```
 package com.example.demo.BST;
 
@@ -260,3 +276,7 @@ public class BST<E extends Comparable<E>> {
 }
 
 ```
+
+## 参考
+1. http://www.imooc.com/t/108955
+2. https://segmentfault.com/a/1190000017761929
