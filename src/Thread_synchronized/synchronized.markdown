@@ -5,19 +5,12 @@
 ## 锁的分类
 1. 获取对象锁
     * 同步代码块，锁是小括号()中的实例对象
-    * 同步非静态方法，锁是当前对象的实例 
+    * 同步非静态方法，锁是当前对象的实例
 2. 获取类锁
     * 同步代码块，锁是小括号()中的类对象
     * 同步静态方法，锁是当前的类对象
 ## synchronized的基础
-1. Java对象头
-    * 对象在内存中的布局
-        1. 对象头: 它是实现synchronized的锁对象的基础，一般而言，synchronized使用的锁对象是存储在Java对象头里的，JVM中采用2个字来存储对象头(如果对象是数组则会分配3个字，多出来的1个字记录的是数组长度)，其主要结构是由Mark Word 和 Class Metadata Address 组成
-        2. 实例数据: 存放类的属性数据信息，包括父类的属性信息，如果是数组的实例部分还包括数组的长度，这部分内存按4字节对齐
-        3. 对其填充: 由于虚拟机要求对象起始地址必须是8字节的整数倍。填充数据不是必须存在的，仅仅是为了字节对齐，这点了解即可
-    *  对象头结构(32位虚拟机)
-        1. Mark Word: 默认存储对象的hashCode,分代年龄，锁类型，锁标志位等信息
-        2. Class MateData Address: 类型指针指向对象的类元数据，JVM通过这个指针确定该对象是哪个类的数据
+1. 请查看<对象创建过程>笔记 
 2. Monitor
     * 每个对象都存在着一个Monitor与之相关联，对象与其Monitor存在多种实现方式，如Monitor可以与对象一起创建或销毁，当一个Monitor被某个线程持有后，他便处于锁定状态，在Java虚拟机(HotSpot)中，monitor是由ObjectMonitor实现的（位于HotSpot虚拟机源码ObjectMonitor.hpp文件，C++实现的）
     * ObjectMonitor中有两个队列，_WaitSet 和 _EntryList，用来保存ObjectWaiter对象列表( 每个等待锁的线程都会被封装成ObjectWaiter对象)，_owner指向持有ObjectMonitor对象的线程，当多个线程同时访问一段同步代码时，首先会进入 _EntryList 集合，
