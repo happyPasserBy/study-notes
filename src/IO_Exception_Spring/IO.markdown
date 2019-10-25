@@ -10,7 +10,7 @@
 ## （一）BIO(Block-IO)
 2. 特点
     * 代码简单，便于理解
-    * 在进行输入/输出时会阻塞线程并且是同步执行
+    * 在进行输入/输出时会阻塞线程并且是同步执行因此效率较低
 ## （二）NIO(NonBlock-IO)
 1. NIO的组成部分
     * Channels、Buffer、Selector
@@ -21,7 +21,7 @@
 4. Selector
     * 可以使单个线程处理多个Channel的任务
     * 只要Channel在Selector上注册过，Selector就会对Channel进行监听直到某个Channel有任务需要执行
-2. 特点
+5. 特点
     * 非阻塞同步
 ## （三）(Asynchronous)
 1. AIO基于事件和回调机制(异步IO，记得nodejs也是这个模型)
