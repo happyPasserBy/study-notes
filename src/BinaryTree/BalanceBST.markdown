@@ -35,6 +35,16 @@
 
 ## 4. 简单的AVL实现
 ```
+package com.fxm.AVL;
+
+import com.fxm.FileOperation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ *
+ */
 public class AVLTree<K extends Comparable<K>, V> {
     private class Node{
         public K key;
@@ -109,11 +119,11 @@ public class AVLTree<K extends Comparable<K>, V> {
         int balanceFactor = getBalanceFactor(node);
 
         // LL
-        if (balanceFactor > 1 && getBalanceFactor(node.left) > 0)
+        if (balanceFactor > 1 && getBalanceFactor(node.left) >= 0)
             return rightRotate(node);
 
         // RR
-        if (balanceFactor < -1 && getBalanceFactor(node.right) < 0)
+        if (balanceFactor < -1 && getBalanceFactor(node.right) <= 0)
             return leftRotate(node);
 
         // LR
@@ -254,13 +264,14 @@ public class AVLTree<K extends Comparable<K>, V> {
         if( node == null )
             return null;
 
+        Node retNodwe;
         if( key.compareTo(node.key) < 0 ){
             node.left = remove(node.left , key);
-            return node;
+            retNodwe =  node;
         }
         else if(key.compareTo(node.key) > 0 ){
             node.right = remove(node.right, key);
-            return node;
+            retNodwe =  node;
         }
         else{   // key.compareTo(node.key) == 0
 
@@ -269,29 +280,57 @@ public class AVLTree<K extends Comparable<K>, V> {
                 Node rightNode = node.right;
                 node.right = null;
                 size --;
-                return rightNode;
-            }
-
-            // 待删除节点右子树为空的情况
-            if(node.right == null){
+                retNodwe =  rightNode;
+            }else if(node.right == null){ // 待删除节点右子树为空的情况
                 Node leftNode = node.left;
                 node.left = null;
                 size --;
-                return leftNode;
+                retNodwe = leftNode;
+            }else {
+
+                // 待删除节点左右子树均不为空的情况
+
+                // 找到比待删除节点大的最小节点, 即待删除节点右子树的最小节点
+                // 用这个节点顶替待删除节点的位置
+                Node successor = minimum(node.right);
+                successor.right = remove(node.right, successor.key);
+                successor.left = node.left;
+
+                node.left = node.right = null;
+
+                retNodwe = successor;
             }
-
-            // 待删除节点左右子树均不为空的情况
-
-            // 找到比待删除节点大的最小节点, 即待删除节点右子树的最小节点
-            // 用这个节点顶替待删除节点的位置
-            Node successor = minimum(node.right);
-            successor.right = removeMin(node.right);
-            successor.left = node.left;
-
-            node.left = node.right = null;
-
-            return successor;
         }
+        if(retNodwe == null) {
+            return null;
+        }
+
+        // 更新height
+        retNodwe.height = 1 + Math.max(getHeight(retNodwe.left), getHeight(retNodwe.right));
+
+        // 计算平衡因子
+        int balanceFactor = getBalanceFactor(retNodwe);
+
+        // LL
+        if (balanceFactor > 1 && getBalanceFactor(retNodwe.left) >= 0)
+            return rightRotate(retNodwe);
+
+        // RR
+        if (balanceFactor < -1 && getBalanceFactor(retNodwe.right) <= 0)
+            return leftRotate(retNodwe);
+
+        // LR
+        if (balanceFactor > 1 && getBalanceFactor(retNodwe.left) < 0) {
+            retNodwe.left = leftRotate(retNodwe.left);
+            return rightRotate(retNodwe);
+        }
+
+        //RL
+        if (balanceFactor < -1 && getBalanceFactor(retNodwe.right) > 0) {
+            retNodwe.right = rightRotate(retNodwe.right);
+            return leftRotate(retNodwe);
+        }
+        return retNodwe;
     }
     // 判断该二叉树是否是一棵平衡二叉树
     public boolean isBalanced(){
