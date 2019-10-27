@@ -279,5 +279,5 @@ public class BST<E extends Comparable<E>> {
 ```
 
 ## 参考
-1. http://www.imooc.com/t/108955
+1. http://www.imooc.com/t/108955  (强烈推荐)
 2. https://segmentfault.com/a/1190000017761929

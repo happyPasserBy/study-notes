@@ -352,7 +352,7 @@ public class AVLTree<K extends Comparable<K>, V> {
 ```
 
 ## 参考
-1. https://coding.imooc.com/class/207.html
+1. https://coding.imooc.com/class/207.html   (强烈推荐)
 2. https://www.cnblogs.com/qm-article/p/9349681.html
 3. https://blog.csdn.net/javazejian/article/details/53892797
 
