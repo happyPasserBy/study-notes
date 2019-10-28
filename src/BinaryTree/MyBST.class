@@ -1,0 +1,224 @@
+public class MyBST<E extends Comparable<E>> {
+
+    private Node root;
+    private int size;
+
+    public MyBST() {
+        this.root = null;
+        this.size = 0;
+    }
+
+
+    @Data
+    private class Node {
+        private Node left;
+        private Node right;
+        private E key;
+
+        public Node() {
+            this.left = null;
+            this.right = null;
+            this.key = null;
+        }
+
+        public Node(E key) {
+            this.key = key;
+            this.left = null;
+            this.right = null;
+        }
+        @Override
+        public String toString(){
+            return this.key.toString();
+        }
+    }
+    public int size(){
+        return this.size;
+    }
+
+    // 先序遍历
+    public void preOrder() {
+        this.preOrder(this.root);
+    }
+
+    private void preOrder(Node node) {
+        if (node == null) return;
+        System.out.println(node);
+        preOrder(node.left);
+        preOrder(node.right);
+    }
+
+    // 中序遍历
+    public void inOrder() {
+        this.inOrder(this.root);
+    }
+
+    private void inOrder(Node node) {
+        if (node == null) return;
+        this.inOrder(node.left);
+        System.out.println(node);
+        this.inOrder(node.right);
+    }
+
+    // 后序遍历
+    public void postOrder() {
+        this.inOrder(this.root);
+    }
+
+    private void postOrder(Node node) {
+        if (node == null) return;
+        this.inOrder(node.left);
+        this.inOrder(node.right);
+        System.out.println(node);
+    }
+
+    // 最大值
+    public E max() {
+        return this.max(this.root);
+    }
+
+    private E max(Node node) {
+        if (node == null) return null;
+        if (node.right == null) return node.key;
+        return this.max(node.right);
+    }
+
+    // 最小值
+    public E min() {
+        return this.min(this.root);
+    }
+
+    private E min(Node node) {
+        if (node == null) return null;
+        if (node.left == null) return node.key;
+        return this.min(node.left);
+    }
+
+    // 是否包含指定值
+    public boolean contains(E e) {
+        return this.contains(e, this.root);
+    }
+
+    private boolean contains(E e, Node node) {
+        if (node == null) return false;
+        if (e.compareTo(node.key) > 0) {
+            return this.contains(e, node.right);
+        } else if (e.compareTo(node.key) < 0) {
+            return this.contains(e, node.left);
+        }
+        return true;
+    }
+
+    // 添加
+    public void add(E e) {
+        if(this.root == null) {
+            this.root = new Node(e);
+        }else {
+            this.add(e,this.root);
+        }
+    }
+    private Node add(E e,Node node) {
+        if(node == null) {
+            this.size++;
+            return new Node(e);
+        }
+        if(e.compareTo(node.key) > 0) {
+            node.right = this.add(e,node.right);
+        }else if(e.compareTo(node.key) < 0) {
+            node.left = this.add(e,node.left);
+        }
+        return node;
+
+    }
+
+    // todo 删除方法
+    // 删除最大值
+    public E removeMin(){
+        return this.removeMin(this.root);
+    }
+
+    private E removeMin(Node node){
+        if(node == null) return null;
+        if(node.left != null) {
+            this.removeMin(node.left);
+        }
+        if(node.right != null) {
+
+        }
+
+        return null;
+    }
+
+//    @Override
+//    public String toString(){
+//        StringBuilder res = new StringBuilder();
+//        generateBSTString(root, 0, res);
+//        return res.toString();
+//    }
+//
+//    // 生成以node为根节点，深度为depth的描述二叉树的字符串
+//    private void generateBSTString(BST.Node node, int depth, StringBuilder res){
+//
+//        if(node == null){
+//            res.append(generateDepthString(depth) + "null\n");
+//            return;
+//        }
+//
+//        res.append(generateDepthString(depth) + node.e +"\n");
+//        generateBSTString(node.left, depth + 1, res);
+//        generateBSTString(node.right, depth + 1, res);
+//    }
+//
+//    private String generateDepthString(int depth){
+//        StringBuilder res = new StringBuilder();
+//        for(int i = 0 ; i < depth ; i ++)
+//            res.append("--");
+//        return res.toString();
+//    }
+
+    // 打乱数组顺序
+    private static void shuffle(Object[] arr){
+
+        for(int i = arr.length - 1 ; i >= 0 ; i --){
+            int pos = (int) (Math.random() * (i + 1));
+            Object t = arr[pos];
+            arr[pos] = arr[i];
+            arr[i] = t;
+        }
+    }
+
+    public static void main(String[] args) {
+        MyBST<Integer> bst = new MyBST<>();
+        Random random = new Random();
+
+        int n = 10;
+
+        for(int i = 0 ; i < n ; i ++){
+            int num = random.nextInt(n);
+            System.out.println(num);
+            bst.add(num);
+        }
+        System.out.println("-----");
+
+        // 注意, 由于随机生成的数据有重复, 所以bst中的数据数量大概率是小于n的
+
+        // order数组中存放[0...n)的所有元素
+        Integer[] order = new Integer[n];
+        for( int i = 0 ; i < n ; i ++ )
+            order[i] = i;
+        // 打乱order数组的顺序
+        shuffle(order);
+
+        bst.inOrder();
+
+        // 乱序删除[0...n)范围里的所有元素
+//        for( int i = 0 ; i < n ; i ++ )
+//            if(bst.contains(order[i])){
+//                bst.remove(order[i]);
+//                System.out.println("After remove " + order[i] + ", size = " + bst.size() );
+//            }
+
+        // 最终整个二分搜索树应该为空
+//        System.out.println(bst.size());
+    }
+
+}
