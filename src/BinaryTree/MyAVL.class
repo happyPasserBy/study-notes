@@ -1,7 +1,4 @@
 
-/**
- *
- */
 public class MyAVL<E extends Comparable<E>, V> {
 
     private Node root;
@@ -26,7 +23,7 @@ public class MyAVL<E extends Comparable<E>, V> {
             this.right = null;
             this.key = null;
             this.value = null;
-            this.height = 0;
+            this.height = 1;
         }
 
         public Node(E key,V value) {
@@ -34,6 +31,7 @@ public class MyAVL<E extends Comparable<E>, V> {
             this.value = value;
             this.left = null;
             this.right = null;
+            this.height = 1;
         }
         @Override
         public String toString(){
@@ -124,25 +122,28 @@ public class MyAVL<E extends Comparable<E>, V> {
 
     // 计算平衡因子
     private int getBalanceFactor(Node node){
+        if((node.left == null && node.right == null) || node == null)return 0;
         if(node.left != null && node.right != null) {
             return node.left.height - node.right.height;
         }
         if(node.left == null) {
-            return 0 - node.right.height;
+            return 0-node.right.height;
         }
         return node.left.height;
     }
 
     // 计算平衡因子
     private int getHeight(Node node){
-        if(node == null) return 0;
         if(node.left != null && node.right != null) {
             return Math.max(node.left.height,node.right.height) + 1;
         }
-        if(node.left == null) {
+        if(node.left == null && node.right != null) {
             return node.right.height + 1;
         }
-        return node.left.height + 1;
+        if(node.right == null && node.left != null) {
+            return node.left.height + 1;
+        }
+        return 1;
 
     }
 
@@ -153,6 +154,8 @@ public class MyAVL<E extends Comparable<E>, V> {
         Node leftChildNode = rightChildNode.left;
         node.right = leftChildNode;
         rightChildNode.left = node;
+        node.height = getHeight(node);
+        rightChildNode.height = getHeight(rightChildNode);
         return rightChildNode;
     }
 
@@ -162,6 +165,8 @@ public class MyAVL<E extends Comparable<E>, V> {
         Node rightChildNode = leftChildNode.right;
         node.left = rightChildNode;
         leftChildNode.right = node;
+        node.height = getHeight(node);
+        leftChildNode.height = getHeight(leftChildNode);
         return leftChildNode;
     }
 
@@ -169,8 +174,9 @@ public class MyAVL<E extends Comparable<E>, V> {
     public void add(E e,V value) {
         if(this.root == null) {
             this.root = new Node(e,value);
+            this.size++;
         }else {
-            this.add(e,value,this.root);
+            this.root = this.add(e,value,this.root);
         }
     }
 
@@ -189,26 +195,93 @@ public class MyAVL<E extends Comparable<E>, V> {
 
         // 待测试
         int balanceFactor = this.getBalanceFactor(node);
-        if(balanceFactor > 0 && this.getBalanceFactor(node.left) > 0) {
+        if(balanceFactor > 1 && this.getBalanceFactor(node.left) >= 0) {
             node = this.rightRotate(node);
         }
-        if(balanceFactor < 0 && this.getBalanceFactor(node.right) < 0) {
+        if(balanceFactor < -1 && this.getBalanceFactor(node.right) <= 0) {
             node = this.leftRotate(node);
         }
 
-        if(balanceFactor > 0 && this.getBalanceFactor(node.left) < 0) {
-            node = this.leftRotate(node);
+        if(balanceFactor > 1 && this.getBalanceFactor(node.left) <= -1) {
+            node.left = this.leftRotate(node.left);
             node = this.rightRotate(node);
         }
 
-        if(balanceFactor < 0 && this.getBalanceFactor(node.right) > 0) {
-            node = this.rightRotate(node);
+        if(balanceFactor < -1 && this.getBalanceFactor(node.right) >= 1) {
+            node.right = this.rightRotate(node.right);
             node = this.leftRotate(node);
         }
         node.height = getHeight(node);
         return node;
 
     }
+
+    // 判断该二叉树是否是一棵平衡二叉树
+    // todo 待删除 ----- ↓
+    public boolean isBalanced(){
+        return isBalanced(root);
+    }
+
+    // 判断以Node为根的二叉树是否是一棵平衡二叉树，递归算法
+    private boolean isBalanced(Node node){
+
+        if(node == null)
+            return true;
+
+        int balanceFactor = getBalanceFactor(node);
+        if(Math.abs(balanceFactor) > 1)
+            return false;
+        return isBalanced(node.left) && isBalanced(node.right);
+    }
+
+    // 判断该二叉树是否是一棵二分搜索树
+    public boolean isBST(){
+        ArrayList<E> keys = new ArrayList<>();
+        inOrder(root, keys);
+        for(int i = 1 ; i < keys.size() ; i ++)
+            if(keys.get(i - 1).compareTo(keys.get(i)) > 0)
+                return false;
+        return true;
+    }
+
+    private void inOrder(Node node, ArrayList<E> keys){
+
+        if(node == null)
+            return;
+
+        inOrder(node.left, keys);
+        keys.add(node.key);
+        inOrder(node.right, keys);
+    }
+
+    // 返回以node为根节点的二分搜索树中，key所在的节点
+    private Node getNode(Node node, E key){
+
+        if(node == null)
+            return null;
+
+        if(key.equals(node.key))
+            return node;
+        else if(key.compareTo(node.key) < 0)
+            return getNode(node.left, key);
+        else // if(key.compareTo(node.key) > 0)
+            return getNode(node.right, key);
+    }
+
+    public V get(E key){
+
+        Node node = getNode(root, key);
+        return node == null ? null : node.value;
+    }
+
+    public void set(E key, V newValue){
+        Node node = getNode(root, key);
+        if(node == null)
+            throw new IllegalArgumentException(key + " doesn't exist!");
+
+        node.value = newValue;
+    }
+    // todo 待删除 -----↑
 
     // 删除最小值
     public E removeMin(){
