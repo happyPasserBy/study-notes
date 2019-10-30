@@ -178,4 +178,41 @@ public class MyBST<E extends Comparable<E>> {
         }
         return null;
     }
+
+    // 删除指定值
+    public boolean remove(E e){
+        int oldSize = this.size();
+        this.remove(e,this.root);
+        int newSize = this.size();
+        return oldSize > newSize;
+    }
+
+    private Node remove(E e,Node node) {
+        if(node == null) return null;
+        if(e.compareTo(node.key) > 0) {
+            return node.right = this.remove(e,node.right);
+        }else if(e.compareTo(node.key) < 0) {
+            return node.left = this.remove(e,node.left);
+        }
+
+        if(node.left != null && node.right != null) {
+            Node maxNode = this.removeMax(node.right);
+            node.key = maxNode.key;
+            this.size--;
+        }
+        if(node.left != null) {
+            Node leftNdoe = node.left;
+            node = leftNdoe;
+            this.size--;
+        }
+        if(node.right != null) {
+            Node rightNdoe = node.right;
+            node = rightNdoe;
+            this.size--;
+        }
+
+        return node;
+
+
+    }
 }
