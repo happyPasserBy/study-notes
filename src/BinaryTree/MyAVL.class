@@ -216,8 +216,6 @@ public class MyAVL<E extends Comparable<E>, V> {
             return node;
         }
         return node;
-
-
     }
 
     // 判断该二叉树是否是一棵平衡二叉树
@@ -341,27 +339,58 @@ public class MyAVL<E extends Comparable<E>, V> {
 
     private Node remove(E e, Node node) {
         if (node == null) return null;
+        Node result;
         if (e.compareTo(node.key) > 0) {
-            return node.right = this.remove(e, node.right);
+            node.right = this.remove(e, node.right);
+            result = node;
         } else if (e.compareTo(node.key) < 0) {
-            return node.left = this.remove(e, node.left);
+            node.left = this.remove(e, node.left);
+            result = node;
+        } else {
+            this.size--;
+            if (node.left != null && node.right != null) {
+                //todo 暂不支持修改value 改为删除返回Node
+                E maxKey = this.min(node.right);
+                node.right = this.remove(maxKey,node.right);
+                node.key = maxKey;
+                // node.value = maxNode.value;//待不支持修改value
+
+            } else if (node.left != null) {
+                Node leftNdoe = node.left;
+                node = leftNdoe;
+            } else if (node.right != null) {
+                Node rightNdoe = node.right;
+                node = rightNdoe;
+            } else {
+                return null;
+            }
+            result = node;
         }
 
-        if (node.left != null && node.right != null) {
-            Node maxNode = this.removeMax(node.right);
-            node.key = maxNode.key;
-            this.size--;
+        result.height = getHeight(result);
+
+        int balanceFactor = this.getBalanceFactor(result);
+        if (balanceFactor > 1 && this.getBalanceFactor(result.left) >= 0) {
+            result = this.rightRotate(result);
+            return result;
         }
-        if (node.left != null) {
-            Node leftNdoe = node.left;
-            node = leftNdoe;
-            this.size--;
+        if (balanceFactor < -1 && this.getBalanceFactor(result.right) <= 0) {
+            result = this.leftRotate(result);
+            return result;
         }
-        if (node.right != null) {
-            Node rightNdoe = node.right;
-            node = rightNdoe;
-            this.size--;
+
+        if (balanceFactor > 1 && this.getBalanceFactor(result.left) <= -1) {
+            result.left = this.leftRotate(result.left);
+            result = this.rightRotate(result);
+            return result;
         }
-        return node;
+
+        if (balanceFactor < -1 && this.getBalanceFactor(result.right) >= 1) {
+            result.right = this.rightRotate(result.right);
+            result = this.leftRotate(result);
+            return result;
+        }
+        return result;
     }
 }
+
