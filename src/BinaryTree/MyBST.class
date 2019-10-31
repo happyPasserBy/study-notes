@@ -146,15 +146,10 @@ public class MyBST<E extends Comparable<E>> {
         if(node == null) return null;
         if(node.left != null) {
             node.left = this.removeMin(node.left);
-            this.size--;
             return node;
         }
-        if(node.right != null) {
-            node = node.right;
-            this.size--;
-            return node;
-        }
-        return null;
+        this.size--;
+        return node.right;
     }
 
     // 删除最大值
@@ -168,15 +163,10 @@ public class MyBST<E extends Comparable<E>> {
         if(node == null) return null;
         if(node.right != null) {
             node.right = this.removeMax(node.right);
-            this.size--;
             return node;
         }
-        if(node.left != null) {
-            node = node.left;
-            this.size--;
-            return node;
-        }
-        return null;
+        this.size--;
+        return node.left;
     }
 
     // 删除指定值
