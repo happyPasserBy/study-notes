@@ -1,3 +1,14 @@
+package com.pic.demo.util.BST;
+
+import lombok.Data;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+/**
+ *
+ */
 public class MyBST<E extends Comparable<E>> {
 
     private Node root;
@@ -78,23 +89,25 @@ public class MyBST<E extends Comparable<E>> {
 
     // 最大值
     public E max() {
-        return this.max(this.root);
+        Node node = this.max(this.root);
+        return this.valid(node);
     }
 
-    private E max(Node node) {
+    private Node max(Node node) {
         if (node == null) return null;
-        if (node.right == null) return node.key;
+        if (node.right == null) return node;
         return this.max(node.right);
     }
 
     // 最小值
     public E min() {
-        return this.min(this.root);
+        Node node = this.min(this.root);
+        return this.valid(node);
     }
 
-    private E min(Node node) {
+    private Node min(Node node) {
         if (node == null) return null;
-        if (node.left == null) return node.key;
+        if (node.left == null) return node;
         return this.min(node.left);
     }
 
@@ -117,6 +130,7 @@ public class MyBST<E extends Comparable<E>> {
     public void add(E e) {
         if(this.root == null) {
             this.root = new Node(e);
+            this.size++;
         }else {
             this.add(e,this.root);
         }
@@ -132,14 +146,16 @@ public class MyBST<E extends Comparable<E>> {
             node.left = this.add(e,node.left);
         }
         return node;
-
+    }
+    private E valid (Node node){
+        return node == null ? node.key : null;
     }
 
     // 删除最小值
     public E removeMin(){
-        E e = this.min(this.root);
+        Node node = this.min(this.root);
         this.root = this.removeMin(this.root);
-        return e;
+        return this.valid(node);
     }
 
     private Node  removeMin(Node node){
@@ -149,14 +165,14 @@ public class MyBST<E extends Comparable<E>> {
             return node;
         }
         this.size--;
-        return node.right;
+        return node;
     }
 
     // 删除最大值
     public E removeMax(){
-        E e = this.max(this.root);
+        Node node = this.max(this.root);
         this.root = this.removeMax(this.root);
-        return e;
+        return this.valid(node);
     }
 
     private Node  removeMax(Node node){
@@ -166,8 +182,9 @@ public class MyBST<E extends Comparable<E>> {
             return node;
         }
         this.size--;
-        return node.left;
+        return node;
     }
+
 
     // 删除指定值
     public boolean remove(E e){
@@ -180,29 +197,31 @@ public class MyBST<E extends Comparable<E>> {
     private Node remove(E e,Node node) {
         if(node == null) return null;
         if(e.compareTo(node.key) > 0) {
-            return node.right = this.remove(e,node.right);
+            node.right = this.remove(e,node.right);
+            return node;
         }else if(e.compareTo(node.key) < 0) {
-            return node.left = this.remove(e,node.left);
+            node.left = this.remove(e,node.left);
+            return node;
         }
 
         if(node.left != null && node.right != null) {
-            Node maxNode = this.removeMax(node.right);
+            Node maxNode = this.removeMin(node.right);
             node.key = maxNode.key;
-            this.size--;
+            return node;
         }
         if(node.left != null) {
             Node leftNdoe = node.left;
             node = leftNdoe;
             this.size--;
+            return node;
         }
         if(node.right != null) {
             Node rightNdoe = node.right;
             node = rightNdoe;
             this.size--;
+            return node;
         }
-
-        return node;
-
-
+        this.size--;
+        return null;
     }
 }
