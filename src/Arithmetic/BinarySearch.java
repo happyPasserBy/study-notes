@@ -5,7 +5,7 @@ public class BinarySearch {
         int L = 0;
         int R = arr.length-1;
         while(L<=R){
-            int middle = (L + R)/2;
+            int middle = (L + R)/2; // int middle = l+(r-l)/2 防止整型溢出
             if(arr[middle] > num){
                 R = middle - 1;
             }else if(arr[middle] < num){
