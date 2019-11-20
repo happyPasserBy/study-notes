@@ -49,3 +49,20 @@ public class RemoveDuplicates {
     }
 }
 ```
+### 1.3 优化后的双指针
+```
+    public static int removeDuplicates(int[] nums) {
+        if (nums.length == 0) return 0;
+        int i = 0;//慢指针
+        for (int j = 1; j < nums.length; j++) {
+            if (nums[j] != nums[i]) {
+                i++;
+                nums[i] = nums[j];
+            }
+        }
+        return i + 1;
+    }
+```
+
+
+
