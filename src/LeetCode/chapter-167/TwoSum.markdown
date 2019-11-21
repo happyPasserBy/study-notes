@@ -94,6 +94,7 @@ public class TwoSum {
 > 创建指针i、j, i指向数组头元素,j指向数组尾元素,循环判断当前头尾两元素相加是否等于查询元素，若大则尾指针--,若小则头指针++。
 ### 3.2 具体实现
 ```
+// 相似问题 125、344、345、11 
 public class TwoSum {
     public static int[] twoSum(int[] numbers, int target) {
         int[] result = new int[2];
