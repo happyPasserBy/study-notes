@@ -47,3 +47,39 @@ public class ReverseList206 {
 
 }
 ```
+
+## 2.解题思路二 三指针
+### 2.1 思路
+> 创建三个指针pre、cur、next指针，循环链表每次改变指针指向，防止改变链表的next属性后导致的指针丢失
+### 2.2 具体实现
+```
+public class ReverseList206 {
+    public static ListNode reverseList(ListNode head) {
+        if(head == null || head.next == null) return head;
+        ListNode pre = null;
+        ListNode cur = head;
+        ListNode next = head.next;
+        while ( true ){
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+            if(next == null) return pre;
+            next = cur.next;
+        }
+    }
+    public static void main(String[] args) {
+        ListNode listNode1 = new ListNode(1);
+        ListNode listNode2 = new ListNode(2);
+        ListNode listNode3 = new ListNode(3);
+        ListNode listNode4 = new ListNode(4);
+        ListNode listNode5 = new ListNode(5);
+        listNode1.next = listNode2;
+        listNode2.next = listNode3;
+        listNode3.next = listNode4;
+        listNode4.next = listNode5;
+        ListNode reverseList = reverseList(listNode1);
+        System.out.println(reverseList);
+    }
+
+}
+```
