@@ -1,9 +1,16 @@
 # RemoveNthFromEnd
 > 给定一个链表，删除链表的倒数第 n 个节点，并且返回链表的头结点。 [链接](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/submissions/)
-## 1.解题思路一 双指针
-### 1.1 思路
-> 假设删除倒数第2个节点，则设两指针pre与cur，pre与cur两指针间隔为2，不断移动cur指针直到为null，则pre指针的next指向的就是待删除节点
+## 1. 解题思路一 双次遍历
+### 1.1 思路 
+> 先遍历一次求出链表长度，在遍历一次进行删除
 ### 1.2 具体实现
+```
+待实现
+```
+## 2.解题思路一 双指针
+### 2.1 思路
+> 假设删除倒数第2个节点，则设两指针pre与cur，pre与cur两指针间隔为2，不断移动cur指针直到为null，则pre指针的next指向的就是待删除节点
+### 2.2 具体实现
 ```
 /**
  * Definition for singly-linked list.
@@ -23,12 +30,11 @@ public class RemoveNthFromEnd {
         Integer distance = 0;
         while (cur != null){
             if(distance < n){
-                cur = cur.next;
                 distance++;
             }else{
                 pre = pre.next;
-                cur = cur.next;
             }
+            cur = cur.next;
         }
         pre.next = pre.next.next;
         return virtual.next;
