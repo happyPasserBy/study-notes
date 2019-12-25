@@ -31,6 +31,22 @@
 * 碎片相关: 栈产生的碎片远小于堆
 * 分配方式: 栈支持静态分配(编译器分配)和动态分配，堆是动态分配
 * 效率: 栈的效率比堆高(堆的底层实现可能是双向链表)
+
+## 三 思考
+```
+public class Test2 {
+    public static void main(String[] args) {
+        Integer c = 0;
+        add(c);
+        System.out.println(c);  // 为何是0
+    }
+    public static void add(Integer num){
+        num++;
+        System.out.println("add:"+num);
+    }
+}
+```
+
 ## 参考链接
 1. https://coding.imooc.com/class/303.html
 
