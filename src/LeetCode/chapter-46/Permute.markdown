@@ -2,7 +2,13 @@
 > 给定一个没有重复数字的序列，返回其所有可能的全排列。 [链接](https://leetcode-cn.com/problems/permutations/)
 ## 1. 解题思路一 回溯法
 ### 1.1 思路
-> 
+![图示](./images/tree.png)
+> 本题的解题思路与[此题](https://github.com/happyPasserBy/study-notes/blob/master/src/LeetCode/chapter-17/LetterCombinations.markdown)思路大体一致,就不详细解释了，我大致说一下思路
+
+* 首先根据题中的 1、2、3的画出树状图
+* 根据图中的线路找到循环体与循环结束条件
+* 额，写不出还有啥了，这道题与LeetCode-17题相似度估计在80%以上，强烈建议先解决[17](https://github.com/happyPasserBy/study-notes/blob/master/src/LeetCode/chapter-17/LetterCombinations.markdown)题
+
 ### 1.2 具体实现
 ```
 public class Permute {
@@ -38,3 +44,6 @@ public class Permute {
     }
 }
 ```
+
+## 参考
+1. 图片来源于[链接](https://leetcode-cn.com/problems/permutations/solution/hui-su-suan-fa-python-dai-ma-java-dai-ma-by-liweiw/)
