@@ -26,7 +26,7 @@ public class RestoreIpAddresses {
     }
     public static void main(String[] args) {
         String str1 = "25525511135";
-        String str2 = "010010"; // ["0.10.0.10","0.100.1.0"]
+        String str2 = "010010";
         System.out.println(restoreIpAddresses(str2));
     }
 }
