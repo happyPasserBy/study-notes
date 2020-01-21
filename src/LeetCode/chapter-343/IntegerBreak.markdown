@@ -15,6 +15,7 @@
 ```
 ## 1.解题思路一 自上而下的递归+记忆优化搜索
 ### 1.1 思路
+![](./images/break_1.png)
 > 
 ### 1.2 具体实现
 ```
@@ -59,6 +60,8 @@ public class IntegerBreak {
         memory[1] = 1;
         for (int i = 2; i <=n ; i++) {
             for (int j = 1; j <= i-1 ; j++) {
+                // j*(i-j): 将i分割成 j + (i-j)
+                // j*memory[i-j]: 
                 memory[i] = max3(memory[i],j*(i-j),j*memory[i-j]);
             }
         }
@@ -66,3 +69,6 @@ public class IntegerBreak {
     }
 }
 ```
+
+## 参考
+1. https://coding.imooc.com/class/82.html
