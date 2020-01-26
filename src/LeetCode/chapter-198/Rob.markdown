@@ -18,7 +18,6 @@ public class Rob {
         memory[index] = price;
         return price;
     }
-
     public int rob(int[] nums) {
         memory = new int[nums.length];
         Arrays.fill(memory,-1);
@@ -33,7 +32,6 @@ public class Rob {
 ### 2.2 具体实现
 ```
 public class Rob198 {
-
     public int rob(int[] nums) {
         int n = nums.length;
         if(n == 0)

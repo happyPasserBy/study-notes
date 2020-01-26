@@ -49,7 +49,6 @@ public class Knapsack01 {
 ```
 ### 1.2 动态规划
 
-
 ![](./images/knapsack01_1.png)
 
 ```
@@ -93,6 +92,9 @@ public class Knapsack01 {
     }
 }
 ```
+### 相似的背包问题
+1. 完全背包问题、多重背包问题、多维费用问题、物品互斥问题
 
 ## 参考
 1. https://coding.imooc.com/class/82.html
+2. https://www.zhihu.com/question/23995189
