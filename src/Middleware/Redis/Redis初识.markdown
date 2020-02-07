@@ -223,6 +223,54 @@ OK
 > 某一热点数据在cache某一刻过期，导致大量请求直接打在了DB上
 ### 11.3 缓存雪崩
 > 大量的key设置相同的过期时间从而同时失效
+## 12. redis的安装
+```
+# 1.解压
+tar -zxvf redis-5.0.7.tar.gz
+# 2.安装依赖
+yum install gcc-c++
+# 3.编译
+make
+# 4.安装(安装完成)
+make install
+# 5.
+cd util
+cp redis_init_script /etc/init.d/
+# 6.复制redis配置
+mkdir /usr/local/redis -p
+cp /home/software/redis-5.0.7/redis.conf /usr/local/redis/
+# 7. 更改核心配置
+vim redis.conf
+-- 
+# 后台运行
+daemonize yes
+# 指定工作空间 创建自定义目录
+dir /usr/local/redis/working 
+# 可访问的id(0.0.0.0任何ip都可访问)
+bind 0.0.0.0
+# 登录密码
+requirepass
+-- 
+# 8.更改运行脚本(第5步的脚本)
+vim /etc/init.d/redis_init_script
+--
+# 核心配置文件地址
+CONF="/usr/local/redis/redis.conf"
+--
+# 9.赋予脚本权限
+chmod 777 redis_init_script
+# 10. 启动并初始化
+./redis_init_script start
+# 1.1 验证
+ps -ef | grep redis
+# 11. 加入开机启动项
+vim redis_init_script
+--
+#chkconfig 22345 10 90
+#description: Start and Stop redis
+--
+chkconfig redis_init_script on
+```
 ## 参考
 1. https://segmentfault.com/a/1190000016837791#articleHeader4
 2. http://try.redis.io/
