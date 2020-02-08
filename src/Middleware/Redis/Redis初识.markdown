@@ -175,9 +175,7 @@ Redis主从同步存在一个致命的问题，如果主库挂掉则代表Redis�
 * 监控主从服务器是否运行正常
 * 如果监控的某个Redis程序出现异常则通过API向管理员发送异常通知
 * 自动主从切换，如果监控的Master出现故障，则将一台Slave切换为Master
-### 7.2 Sentinel的启动与初始化
-> Sentinel本质上是运行在特殊模式下的Redis服务器，Sentinel的初始化并不会加载AOF/RDB文件，并且也无法执行set等存储命令，
-......未完待续
+* Sentinel本质上是运行在特殊模式下的Redis服务器，Sentinel的初始化并不会加载AOF/RDB文件，并且也无法执行set等存储命令
 ## 8.Redis Cluster集群存储
 > 为了提高数据的查询效率，将数据按照指定的规则存储到不同的Redis上......未完待续
 ## 9.Redis实现分布式锁
@@ -234,7 +232,7 @@ make
 # 4.安装(安装完成)
 make install
 # 5.
-cd util
+cd utils
 cp redis_init_script /etc/init.d/
 # 6.复制redis配置
 mkdir /usr/local/redis -p
@@ -271,6 +269,58 @@ vim redis_init_script
 --
 chkconfig redis_init_script on
 ```
+## 13.配置主从
+```
+# 1.查看主从配置
+info replication
+# 2. 配置主ip
+vim redis.conf
+replicaof master_ip master_port
+# 3. 配置主 登录密码
+masterauth <master-password>
+```
+## 14. 配置哨兵
+```
+# 1. 在redis安装包下找到sentinel.conf
+vim sentinel.conf
+# 2. 关闭节点保护(方便操作，线上环境谨慎)
+protected-mode no
+# 3. 开启后台运行
+daemonize yes
+# 4. 开启日志
+logfile /var/log/redis/sentinel/sentinel.log
+# 5. 工作空间
+dir /usr/local/redis/sentinel
+# 6. 配置哨兵监控的master节点与哨兵检测的数量
+sentinel monitor mymaster 127.0.0.1 6379 2
+# 7. master密码
+sentinel auth-pass mymaster 密码
+# 8. 
+sentinel down-after-milliseconds mymaster 30000
+
+# 9.最终的配置
+---
+# Base
+protected—mode no
+port 26379
+daemonize yes
+pidfile /var/run/redis—sentinel.pid
+logfile /usr/local/redis/sentinel/redis—sentinel.log
+dir /usr/local/redis/sentinel
+# Core
+sentinel monitor mymaster ip 6379 2
+sentinel auth-pass mymaster 密码
+sentinel down-after-milliseconds mymaster 10000
+sentinel parallel-syncs mymaster 1
+sentinel failover-timeout mymaster 180000
+
+---
+# 10.启动
+redis-sentinel 配置文件地址
+
+```
+
+
 ## 参考
 1. https://segmentfault.com/a/1190000016837791#articleHeader4
 2. http://try.redis.io/
