@@ -233,6 +233,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * The default initial capacity - MUST be a power of two.
      */
+    // 默认容器长度
     static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 
     /**
@@ -240,11 +241,13 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * by either of the constructors with arguments.
      * MUST be a power of two <= 1<<30.
      */
+    // 最大容量
     static final int MAXIMUM_CAPACITY = 1 << 30;
 
     /**
      * The load factor used when none specified in constructor.
      */
+    // 负载因子
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
@@ -255,6 +258,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * tree removal about conversion back to plain bins upon
      * shrinkage.
      */
+    // 链表转为红黑树的阈值
     static final int TREEIFY_THRESHOLD = 8;
 
     /**
@@ -262,6 +266,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * resize operation. Should be less than TREEIFY_THRESHOLD, and at
      * most 6 to mesh with shrinkage detection under removal.
      */
+    // 红黑树转为链表的阈值
     static final int UNTREEIFY_THRESHOLD = 6;
 
     /**
@@ -624,41 +629,67 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
-        Node<K,V>[] tab; Node<K,V> p; int n, i;
+        // 底层容器
+        Node<K,V>[] tab; 
+        // 与待存储值冲突的元素
+        Node<K,V> p; 
+        // 容器容量
+        int n, 
+        // 待存储的hash值
+        i;
+        // 判断如果现有容器是空的则初始化容器
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
+        // 判断当前存储元素所对应的下标是否有元素，没有则继续存储
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
-        else {
-            Node<K,V> e; K k;
+        else { // 计算出的下有元素
+            Node<K,V> e;
+            // 冲突元素的key
+            K k;
+            // 判断存储的元素与冲突的元素是否是相同的key,是则只要替换值
             if (p.hash == hash &&
                 ((k = p.key) == key || (key != null && key.equals(k))))
                 e = p;
-            else if (p instanceof TreeNode)
+            else if (p instanceof TreeNode) // 如果是树型则调用树的存储方法
                 e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
             else {
+
+
                 for (int binCount = 0; ; ++binCount) {
+
+                    // 如果链表的下个节点为null
                     if ((e = p.next) == null) {
+                        //  将存储元素转为链表节点
                         p.next = newNode(hash, key, value, null);
+                        // 判断是否可以转换为红黑树
                         if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
                             treeifyBin(tab, hash);
                         break;
                     }
+
+                    // 在链表中查找key相同的元素，这样只改动对应元素的值即可
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         break;
+                    // 移动链表
                     p = e;
                 }
             }
-            if (e != null) { // existing mapping for key
+
+            // 找到了相同key的元素(existing mapping for key),
+            if (e != null) { // 
                 V oldValue = e.value;
                 if (!onlyIfAbsent || oldValue == null)
                     e.value = value;
+                // 更改值的回调
                 afterNodeAccess(e);
                 return oldValue;
             }
         }
+        // 统计更改次数
         ++modCount;
+        // 判断是否需要扩容
         if (++size > threshold)
             resize();
         afterNodeInsertion(evict);
@@ -675,15 +706,23 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * @return the table
      */
     final Node<K,V>[] resize() {
+        // 容器 
         Node<K,V>[] oldTab = table;
+        // 保存现有容量
         int oldCap = (oldTab == null) ? 0 : oldTab.length;
+        // 现有扩容的阈值
         int oldThr = threshold;
-        int newCap, newThr = 0;
+        // 新的容量
+        int newCap,
+        // 新的扩容阈值 
+        newThr = 0;
         if (oldCap > 0) {
+            // 达到最大值不在扩容
             if (oldCap >= MAXIMUM_CAPACITY) {
                 threshold = Integer.MAX_VALUE;
                 return oldTab;
             }
+            // 没超过最最大值，将容量与阈值扩充为原来的2倍
             else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
                      oldCap >= DEFAULT_INITIAL_CAPACITY)
                 newThr = oldThr << 1; // double threshold

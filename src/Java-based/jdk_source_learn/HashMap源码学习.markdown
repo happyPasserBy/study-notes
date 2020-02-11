@@ -78,7 +78,7 @@ ___________________
 ```
 
 
-### 1.2 
+### 1.2 tableSizeFor 演示
 
 * 假设tableSizeFor(211);
 ```
@@ -115,18 +115,174 @@ int n = cap - 1;       -1是防止cap本就是2的n次幂，-1后经过后续计
 ### 1.3 总结：所有的位移与|都是为了将高位以下数据改为1(只要n>0必定有一位为1)，当所有位上的数据为1时，则+1以后得到的数必定大于cap且是最接近cap的2的n次幂
 
 ## 2.根据hash计算下标
-> 该方法主要用过位移加^操作计算下表
-
+> (h = key.hashCode()) ^ (h >>> 16) 主要是为了混淆高低位，一些相差较大的数组可能在二进制中出现高位不同但低位相同，而计算hashMap下标时会跟当前容器容量进行&操作，这样就会导致命名数字相差很大但计算出来的下标却一样，^ (h >>> 16)这个操作就是为了混淆高低位。具体请看参考第4条。
 ```
 static final int hash(Object key) {
     int h;
-    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16); // 
 }
 
 ```
+## 3. 核心方法
+### 3.1 map的put方法
+```
+final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+                   boolean evict) {
+    // 底层容器
+    Node<K,V>[] tab; 
+    // 与待存储值冲突的元素
+    Node<K,V> p; 
+    // 容器容量
+    int n, 
+    // 待存储的hash值
+    i;
+    // 判断如果现有容器是空的则初始化容器
+    if ((tab = table) == null || (n = tab.length) == 0)
+        n = (tab = resize()).length;
+    // 判断当前存储元素所对应的下标是否有元素，没有则继续存储
+    if ((p = tab[i = (n - 1) & hash]) == null)
+        tab[i] = newNode(hash, key, value, null);
+    else { // 计算出的下有元素
+
+        Node<K,V> e;
+
+        // 冲突元素的key
+        K k;
+
+        // 判断存储的元素与冲突的元素是否是相同的key,是则只要替换值
+        if (p.hash == hash &&
+            ((k = p.key) == key || (key != null && key.equals(k))))
+            e = p;
+        else if (p instanceof TreeNode) // 如果是树型则调用树的存储方法
+            e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+        else {
 
 
+            for (int binCount = 0; ; ++binCount) {
 
+                // 如果链表的下个节点为null
+                if ((e = p.next) == null) {
+                    //  将存储元素转为链表节点
+                    p.next = newNode(hash, key, value, null);
+                    // 判断是否可以转换为红黑树
+                    if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                        treeifyBin(tab, hash);
+                    break;
+                }
+
+                // 在链表中查找key相同的元素，这样只改动对应元素的值即可
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    break;
+                // 移动链表
+                p = e;
+            }
+        }
+
+        // 找到了相同key的元素(existing mapping for key),
+        if (e != null) { // 
+            V oldValue = e.value;
+            if (!onlyIfAbsent || oldValue == null)
+                e.value = value;
+            // 更改值的回调
+            afterNodeAccess(e);
+            return oldValue;
+        }
+    }
+    // 统计更改次数
+    ++modCount;
+    // 判断是否需要扩容
+    if (++size > threshold)
+        resize();
+    afterNodeInsertion(evict);
+    return null;
+}
+```
+
+### 3.2 map的resize方法
+```
+final Node<K,V>[] resize() {
+        // 容器 
+        Node<K,V>[] oldTab = table;
+        // 保存现有容量
+        int oldCap = (oldTab == null) ? 0 : oldTab.length;
+        // 现有扩容的阈值
+        int oldThr = threshold;
+        // 新的容量
+        int newCap,
+        // 新的扩容阈值 
+        newThr = 0;
+        if (oldCap > 0) {
+            // 达到最大值不在扩容
+            if (oldCap >= MAXIMUM_CAPACITY) {
+                threshold = Integer.MAX_VALUE;
+                return oldTab;
+            }
+            // 没超过最最大值，将容量与阈值扩充为原来的2倍
+            else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                     oldCap >= DEFAULT_INITIAL_CAPACITY)
+                newThr = oldThr << 1; // double threshold
+        }
+        else if (oldThr > 0) // initial capacity was placed in threshold
+            newCap = oldThr;
+        else {               // zero initial threshold signifies using defaults
+            newCap = DEFAULT_INITIAL_CAPACITY;
+            newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+        }
+        if (newThr == 0) {
+            float ft = (float)newCap * loadFactor;
+            newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
+                      (int)ft : Integer.MAX_VALUE);
+        }
+        threshold = newThr;
+        @SuppressWarnings({"rawtypes","unchecked"})
+            Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+        table = newTab;
+        if (oldTab != null) {
+            for (int j = 0; j < oldCap; ++j) {
+                Node<K,V> e;
+                if ((e = oldTab[j]) != null) {
+                    oldTab[j] = null;
+                    if (e.next == null)
+                        newTab[e.hash & (newCap - 1)] = e;
+                    else if (e instanceof TreeNode)
+                        ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+                    else { // preserve order
+                        Node<K,V> loHead = null, loTail = null;
+                        Node<K,V> hiHead = null, hiTail = null;
+                        Node<K,V> next;
+                        do {
+                            next = e.next;
+                            if ((e.hash & oldCap) == 0) {
+                                if (loTail == null)
+                                    loHead = e;
+                                else
+                                    loTail.next = e;
+                                loTail = e;
+                            }
+                            else {
+                                if (hiTail == null)
+                                    hiHead = e;
+                                else
+                                    hiTail.next = e;
+                                hiTail = e;
+                            }
+                        } while ((e = next) != null);
+                        if (loTail != null) {
+                            loTail.next = null;
+                            newTab[j] = loHead;
+                        }
+                        if (hiTail != null) {
+                            hiTail.next = null;
+                            newTab[j + oldCap] = hiHead;
+                        }
+                    }
+                }
+            }
+        }
+        return newTab;
+    }
+```
 
 
 ## 参考
