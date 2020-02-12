@@ -239,20 +239,24 @@ final Node<K,V>[] resize() {
             Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
         table = newTab;
         if (oldTab != null) {
+            // 循环底层数组准备拷贝每个元素
             for (int j = 0; j < oldCap; ++j) {
                 Node<K,V> e;
                 if ((e = oldTab[j]) != null) {
                     oldTab[j] = null;
-                    if (e.next == null)
+                    if (e.next == null) // 单个节点直接重新计算下标并存储
                         newTab[e.hash & (newCap - 1)] = e;
-                    else if (e instanceof TreeNode)
+                    else if (e instanceof TreeNode) // 红黑树的拷贝
                         ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
                     else { // preserve order
+                        // 保存不移动的链表
                         Node<K,V> loHead = null, loTail = null;
+                        // 保存待移动的链表
                         Node<K,V> hiHead = null, hiTail = null;
                         Node<K,V> next;
                         do {
                             next = e.next;
+                            // 注意此时的小标计算 & oldCap，没有oldCap-1是为了求出原有hash高位是否为1，具体请看参考第5条
                             if ((e.hash & oldCap) == 0) {
                                 if (loTail == null)
                                     loHead = e;
@@ -260,6 +264,7 @@ final Node<K,V>[] resize() {
                                     loTail.next = e;
                                 loTail = e;
                             }
+                            // 高为为1，说明与原有的下标不符需要移动
                             else {
                                 if (hiTail == null)
                                     hiHead = e;
@@ -268,10 +273,12 @@ final Node<K,V>[] resize() {
                                 hiTail = e;
                             }
                         } while ((e = next) != null);
+                        // 原有位置上保存新的链表(下标在发生扩容时不需要移动)
                         if (loTail != null) {
                             loTail.next = null;
                             newTab[j] = loHead;
                         }
+                        // 存放扩容后需要移动的链表，因为扩容必定时原有容量的两倍，所以 newTab[j + oldCap]
                         if (hiTail != null) {
                             hiTail.next = null;
                             newTab[j + oldCap] = hiHead;
@@ -290,3 +297,4 @@ final Node<K,V>[] resize() {
 2. https://juejin.im/post/5d51884ee51d4561e0516ac9
 3. https://juejin.im/post/5d54300151882551d172f22d
 4. https://www.zhihu.com/question/20733617/answer/32513376
+5. https://segmentfault.com/a/1190000015812438
