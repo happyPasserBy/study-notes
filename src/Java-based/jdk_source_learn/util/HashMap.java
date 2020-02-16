@@ -800,11 +800,14 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     final void treeifyBin(Node<K,V>[] tab, int hash) {
         int n, index; Node<K,V> e;
+        // 如果容器长度小于64s则无须树化，直接扩容即可
         if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
             resize();
         else if ((e = tab[index = (n - 1) & hash]) != null) {
             TreeNode<K,V> hd = null, tl = null;
+            // 循环链表创建红黑树节点
             do {
+                // 创建红黑树节点
                 TreeNode<K,V> p = replacementTreeNode(e, null);
                 if (tl == null)
                     hd = p;
@@ -1954,6 +1957,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
          * @return root of tree
          */
         final void treeify(Node<K,V>[] tab) {
+            // 根节点
             TreeNode<K,V> root = null;
             for (TreeNode<K,V> x = this, next; x != null; x = next) {
                 next = (TreeNode<K,V>)x.next;
@@ -1964,12 +1968,16 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                     root = x;
                 }
                 else {
+                    // 当前循环节点的key
                     K k = x.key;
+                    // 当前循环节点的hash
                     int h = x.hash;
                     Class<?> kc = null;
                     for (TreeNode<K,V> p = root;;) {
                         int dir, ph;
                         K pk = p.key;
+
+                        // 整个if代码块用来判断存储到左节点还是右节点
                         if ((ph = p.hash) > h)
                             dir = -1;
                         else if (ph < h)
@@ -1980,18 +1988,21 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                             dir = tieBreakOrder(k, pk);
 
                         TreeNode<K,V> xp = p;
+                        // 判断要存储的节点是否为null
                         if ((p = (dir <= 0) ? p.left : p.right) == null) {
                             x.parent = xp;
                             if (dir <= 0)
                                 xp.left = x;
                             else
                                 xp.right = x;
+                            // 维护平衡
                             root = balanceInsertion(root, x);
                             break;
                         }
                     }
                 }
             }
+            // 将root保存到在容器里对应下标的第一个节点
             moveRootToFront(tab, root);
         }
 
@@ -2261,16 +2272,112 @@ public class HashMap<K,V> extends AbstractMap<K,V>
             }
             return root;
         }
+        static <K, V> TreeNode<K, V> balanceInsertion2(TreeNode<K, V> root, TreeNode<K, V> x){
+        // 正如开头所说，新加入树节点默认都是红色的，不会破坏树的结构。
+        x.red = true;
+        // 这些变量名不是作者随便定义的都是有意义的。
+        // xp：x parent，代表x的父节点。
+        // xpp：x parent parent，代表x的祖父节点
+        // xppl：x parent parent left，代表x的祖父的左节点。
+        // xppr：x parent parent right，代表x的祖父的右节点。
+        for (TreeNode<K, V> xp, xpp, xppl, xppr;;)
+        {
+            // 如果x的父节点为null说明只有一个节点，该节点为根节点，根节点为黑色，red = false。
+            if ((xp = x.parent) == null)
+            {
+                x.red = false;
+                return x;
+            } 
+            // 进入else说明不是根节点。
+            // 如果父节点是黑色，那么大吉大利（今晚吃鸡），红色的x节点可以直接添加到黑色节点后面，返回根就行了不需要任何多余的操作。
+            // 如果父节点是红色的，但祖父节点为空的话也可以直接返回根此时父节点就是根节点，因为根必须是黑色的，添加在后面没有任何问题。
+            else if (!xp.red || (xpp = xp.parent) == null)
+                return root;
+            
+            // 一旦我们进入到这里就说明了两件是情
+            // 1.x的父节点xp是红色的，这样就遇到两个红色节点相连的问题，所以必须经过旋转变换。
+            // 2.x的祖父节点xpp不为空。
+            
+            // 判断如果父节点是否是祖父节点的左节点
+            if (xp == (xppl = xpp.left))
+            {
+                // 父节点xp是祖父的左节点xppr
+                // 判断祖父节点的右节点不为空并且是否是红色的
+                // 此时xpp的左右节点都是红的，所以直接进行上面所说的第三种变换，将两个子节点变成黑色，将xpp变成红色，然后将红色节点x顺利的添加到了xp的后面。
+                // 这里大家有疑问为什么将x = xpp？
+                // 这是由于将xpp变成红色以后可能与xpp的父节点发生两个相连红色节点的冲突，这就又构成了第二种旋转变换，所以必须从底向上的进行变换，直到根。
+                // 所以令x = xpp，然后进行下下一层循环，接着往上走。
+                if ((xppr = xpp.right) != null && xppr.red)
+                {
+                    xppr.red = false;
+                    xp.red = false;
+                    xpp.red = true;
+                    x = xpp;
+                }
+                // 进入到这个else里面说明。
+                // 父节点xp是祖父的左节点xppr。
+                // 祖父节点xpp的右节点xppr是黑色节点或者为空，默认规定空节点也是黑色的。
+                // 下面要判断x是xp的左节点还是右节点。
+                else
+                {
+                    // x是xp的右节点，此时的结构是：xpp左->xp右->x。这明显是第二中变换需要进行两次旋转，这里先进行一次旋转。
+                    // 下面是第一次旋转。
+                    if (x == xp.right)
+                    {
+                        root = rotateLeft(root, x = xp);
+                        xpp = (xp = x.parent) == null ? null : xp.parent;
+                    }
+                    // 针对本身就是xpp左->xp左->x的结构或者由于上面的旋转造成的这种结构进行一次旋转。
+                    if (xp != null)
+                    {
+                        xp.red = false;
+                        if (xpp != null)
+                        {
+                            xpp.red = true;
+                            root = rotateRight(root, xpp);
+                        }
+                    }
+                }
+            } 
+            // 这里的分析方式和前面的相对称只不过全部在右测不再重复分析。
+            else
+            {
+                if (xppl != null && xppl.red)
+                {
+                    xppl.red = false;
+                    xp.red = false;
+                    xpp.red = true;
+                    x = xpp;
+                } else
+                {
+                    if (x == xp.left)
+                    {
+                        root = rotateRight(root, x = xp);
+                        xpp = (xp = x.parent) == null ? null : xp.parent;
+                    }
+                    if (xp != null)
+                    {
+                        xp.red = false;
+                        if (xpp != null)
+                        {
+                            xpp.red = true;
+                            root = rotateLeft(root, xpp);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
         static <K,V> TreeNode<K,V> balanceInsertion(TreeNode<K,V> root,
                                                     TreeNode<K,V> x) {
             x.red = true;
             for (TreeNode<K,V> xp, xpp, xppl, xppr;;) {
-                if ((xp = x.parent) == null) {
+                if ((xp = x.parent) == null) {// 如果是根节点
                     x.red = false;
                     return x;
                 }
-                else if (!xp.red || (xpp = xp.parent) == null)
+                else if (!xp.red || (xpp = xp.parent) == null) // 如果父节点是黑色或父节点是根节点，为什么是黑色可以直接返回？
                     return root;
                 if (xp == (xppl = xpp.left)) {
                     if ((xppr = xpp.right) != null && xppr.red) {

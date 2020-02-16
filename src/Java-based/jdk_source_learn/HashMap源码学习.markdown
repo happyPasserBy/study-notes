@@ -291,6 +291,87 @@ final Node<K,V>[] resize() {
     }
 ```
 
+### 3.3 map中的红黑树
+### 3.3.1 将链表转为红黑树
+```
+final void treeifyBin(Node<K,V>[] tab, int hash) {
+    int n, index; Node<K,V> e;
+    // 如果容器长度小于64s则无须树化，直接扩容即可
+    if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
+        resize();
+    else if ((e = tab[index = (n - 1) & hash]) != null) {
+        TreeNode<K,V> hd = null, tl = null;
+        // 循环链表创建红黑树节点
+        do {
+            // 创建红黑树节点
+            TreeNode<K,V> p = replacementTreeNode(e, null);
+            if (tl == null)
+                hd = p;
+            else {
+                p.prev = tl;
+                tl.next = p;
+            }
+            tl = p;
+        } while ((e = e.next) != null);
+        if ((tab[index] = hd) != null)
+            hd.treeify(tab);
+    }
+}
+```
+### 3.3.2 创建红黑树
+```
+final void treeify(Node<K,V>[] tab) {
+    // 根节点
+    TreeNode<K,V> root = null;
+    for (TreeNode<K,V> x = this, next; x != null; x = next) {
+        next = (TreeNode<K,V>)x.next;
+        x.left = x.right = null;
+        if (root == null) {
+            x.parent = null;
+            x.red = false;
+            root = x;
+        }
+        else {
+            // 当前循环节点的key
+            K k = x.key;
+            // 当前循环节点的hash
+            int h = x.hash;
+            Class<?> kc = null;
+            for (TreeNode<K,V> p = root;;) {
+                int dir, ph;
+                K pk = p.key;
+
+                // 整个if代码块用来判断存储到左节点还是右节点
+                if ((ph = p.hash) > h)
+                    dir = -1;
+                else if (ph < h)
+                    dir = 1;
+                else if ((kc == null &&
+                            (kc = comparableClassFor(k)) == null) ||
+                            (dir = compareComparables(kc, k, pk)) == 0)
+                    dir = tieBreakOrder(k, pk);
+
+                TreeNode<K,V> xp = p;
+                // 判断要存储的节点是否为null
+                if ((p = (dir <= 0) ? p.left : p.right) == null) {
+                    x.parent = xp;
+                    if (dir <= 0)
+                        xp.left = x;
+                    else
+                        xp.right = x;
+                    // 维护平衡
+                    root = balanceInsertion(root, x);
+                    break;
+                }
+            }
+        }
+    }
+    // 将root保存到在容器里对应下标的第一个节点
+    moveRootToFront(tab, root);
+}
+```
+
+
 
 ## 参考
 1. https://blog.csdn.net/huzhigenlaohu/article/details/51802457

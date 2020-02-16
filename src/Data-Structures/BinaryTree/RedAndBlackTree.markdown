@@ -52,25 +52,25 @@
 ## 2.正餐来临-红黑树
 ### 2.1 维护红黑树特性-左旋转
 
-![](./images/RED_AND_BLACK_TREE_1.PNG)
+![](./images/RED_AND_BLACK_TREE_1.png)
 
-![](./images/RED_AND_BLACK_TREE_2.PNG)
+![](./images/RED_AND_BLACK_TREE_2.png)
 
 ### 2.2 维护红黑树特性-右旋转
 
-![](./images/RED_AND_BLACK_TREE_3.PNG)
+![](./images/RED_AND_BLACK_TREE_3.png)
 
-![](./images/RED_AND_BLACK_TREE_4.PNG)
+![](./images/RED_AND_BLACK_TREE_4.png)
 
 ### 2.2 维护红黑树特性-变色
 
-![](./images/RED_AND_BLACK_TREE_6.PNG)
+![](./images/RED_AND_BLACK_TREE_6.png)
 
-![](./images/RED_AND_BLACK_TREE_7.PNG)
+![](./images/RED_AND_BLACK_TREE_7.png)
 
 ### 2.3 添加操作
 
-![](./images/RED_AND_BLACK_TREE_5.PNG)
+![](./images/RED_AND_BLACK_TREE_5.png)
 
 ### 2.4 简单实现
 ```
@@ -299,5 +299,4 @@ public class RBTree<K extends Comparable<K>, V> {
 ## 参考
 1. https://coding.imooc.com/class/207.html (强烈推荐)
 2. https://www.cnblogs.com/lishanlei/p/10707791.html
-3. https://www.cnblogs.com/lishanlei/p/10707791.html
 
