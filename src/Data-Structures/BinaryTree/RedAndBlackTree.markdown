@@ -299,4 +299,5 @@ public class RBTree<K extends Comparable<K>, V> {
 ## 参考
 1. https://coding.imooc.com/class/207.html (强烈推荐)
 2. https://www.cnblogs.com/lishanlei/p/10707791.html
+3. https://www.cnblogs.com/finite/p/8251587.html
 
