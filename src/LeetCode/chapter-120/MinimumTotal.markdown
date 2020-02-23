@@ -38,7 +38,7 @@ class Solution {
 ## 2. 解题思路二 记忆化搜索
 ### 2.1 思路
 > 递归的方式中出现了重复计算，可以采用缓存的方式将计算结构存储起来，方便下次使用
-### 2.2 具体实现 (存在bug)
+### 2.2 具体实现
 ```
 public class MinimumTotal {
     public static int minimumTotal(List<List<Integer>> triangle) {
@@ -52,8 +52,8 @@ public class MinimumTotal {
         if(triangle.size() <= line+1)return total;
         if(map.containsKey(line+"-"+preIndex)) return map.get(line+"-"+preIndex);
 
-        int sum1 = memeorySeracr(triangle, line+1, preIndex, total+triangle.get(line+1).get(preIndex));
-        int sum2 = memeorySeracr(triangle, line+1, preIndex+1, total+triangle.get(line+1).get(preIndex+1));
+        int sum1 = memeorySeracr(triangle, line+1, preIndex, triangle.get(line+1).get(preIndex))+total;
+        int sum2 = memeorySeracr(triangle, line+1, preIndex+1, triangle.get(line+1).get(preIndex+1))+total;
 
         int min = Math.min(sum1, sum2);
         map.put(line+"-"+preIndex,min);
