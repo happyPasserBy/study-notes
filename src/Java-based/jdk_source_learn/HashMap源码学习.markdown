@@ -371,6 +371,114 @@ final void treeify(Node<K,V>[] tab) {
 }
 ```
 
+### 3.3.3 保持平衡的左旋转
+```
+static <K,V> TreeNode<K,V> rotateLeft(TreeNode<K,V> root,
+                                        TreeNode<K,V> p) {
+    TreeNode<K,V> r, pp, rl;
+    if (p != null && (r = p.right) != null) {
+        if ((rl = p.right = r.left) != null)
+            rl.parent = p;
+        if ((pp = r.parent = p.parent) == null)
+            (root = r).red = false;
+        else if (pp.left == p)
+            pp.left = r;
+        else
+            pp.right = r;
+        r.left = p;
+        p.parent = r;
+    }
+    return root;
+}
+```
+### 3.3.4 保持平衡的右旋转
+```
+static <K,V> TreeNode<K,V> rotateRight(TreeNode<K,V> root,
+                                        TreeNode<K,V> p) {
+    TreeNode<K,V> l, pp, lr;
+    if (p != null && (l = p.left) != null) {
+        if ((lr = p.left = l.right) != null)
+            lr.parent = p;
+        if ((pp = l.parent = p.parent) == null)
+            (root = l).red = false;
+        else if (pp.right == p)
+            pp.right = l;
+        else
+            pp.left = l;
+        l.right = p;
+        p.parent = l;
+    }
+    return root;
+}
+```
+### 3.3.5 插入时保持平衡
+```
+static <K,V> TreeNode<K,V> balanceInsertion(TreeNode<K,V> root,
+                                                    TreeNode<K,V> x) {
+    // 新插入的节点颜色为红色
+    x.red = true;
+    // xp = x父节点，xpp = x祖先节点，xppl = x祖先的左节点，xppr = x祖先的右节点
+    for (TreeNode<K,V> xp, xpp, xppl, xppr;;) {
+
+        // 判断是否为根节点
+        if ((xp = x.parent) == null) {
+            x.red = false;
+            return x;
+        }
+        // 判断父节点是否为根节点
+        else if (!xp.red || (xpp = xp.parent) == null)
+            return root;
+
+        // x的父节点xp为祖先节点xpp的左节点
+        if (xp == (xppl = xpp.left)) {
+            // 祖先的右节点xppr不为空且是红色
+            // 除了x节点为新节点其它节点必定属于红黑树特性,而x的祖先的右节点是红色则说明x祖先节点xpp必定为黑色，x的父节点xp必定为红色。此时只要变色就可以保证xpp开始的树的平衡，最后将x指向xpp准备下一次的平衡判断
+            if ((xppr = xpp.right) != null && xppr.red) {
+                xppr.red = false;
+                xp.red = false;
+                xpp.red = true;
+                x = xpp;
+            }
+            // xppr为空或者是黑色
+            else {
+                // 如果在右侧则需先左旋转
+                if (x == xp.right) {
+                    root = rotateLeft(root, x = xp);
+                    xpp = (xp = x.parent) == null ? null : xp.parent;
+                }
+                if (xp != null) {
+                    xp.red = false;
+                    if (xpp != null) {
+                        xpp.red = true;
+                        root = rotateRight(root, xpp);
+                    }
+                }
+            }
+        }
+        else {
+            if (xppl != null && xppl.red) {
+                xppl.red = false;
+                xp.red = false;
+                xpp.red = true;
+                x = xpp;
+            }
+            else {
+                if (x == xp.left) {
+                    root = rotateRight(root, x = xp);
+                    xpp = (xp = x.parent) == null ? null : xp.parent;
+                }
+                if (xp != null) {
+                    xp.red = false;
+                    if (xpp != null) {
+                        xpp.red = true;
+                        root = rotateLeft(root, xpp);
+                    }
+                }
+            }
+        }
+    }
+}
+```
 
 
 ## 参考
@@ -379,3 +487,4 @@ final void treeify(Node<K,V>[] tab) {
 3. https://juejin.im/post/5d54300151882551d172f22d
 4. https://www.zhihu.com/question/20733617/answer/32513376
 5. https://segmentfault.com/a/1190000015812438
+6. https://www.cnblogs.com/oldbai/p/9890808.html
