@@ -32,7 +32,7 @@
 2. start会调用带有native关键字的方法，其内部含义是调用JVM指令创建子线程并执行run方法
 
 ## Thread与Runnable的区别
-1. Runnable是一个接口,Thread是一个类并且他实现了Runnable
+1. Runnable是一个接口,Thread是一个类并且它实现了Runnable
 2. 都说Runnable和Thread是实现多线程的两种方式，但个人感觉最终创建线程并执行的还是Thread,只不过实现了Runnable说明该类是应用于多线程的，而Runnable是一个多线程标识
 
 ## 处理线程的返回值
@@ -188,7 +188,7 @@ public class WaitSleepDemo {
 ## notify与notifyAll的区别
 1. 锁池(EntryList)与等待池(WaitSet)
     * 锁池: 没有竞争到对象锁的线程被放入锁池
-    * 等待池: 当一个拥有锁的线程内调用wati后，当前线程会释放锁并进入等待池，等待被唤醒，如果带参数调用wait，在到达指定参数时间后将线程将竞争锁对象，如没有竞争到将进入锁池
+    * 等待池: 当一个拥有锁的线程内调用wait后，当前线程会释放锁并进入等待池，等待被唤醒，如果带参数调用wait，在到达指定参数时间后将线程将竞争锁对象，如没有竞争到将进入锁池
 2. notify将随机从等待池唤醒一个线程，让其去竞争锁，如未竞争到将进入锁池
 3. notifyAll将唤醒等待池中所有线程，让其去竞争锁，线程的优先级越高获取锁的几率越大，如未竞争到将进入锁池
 ```java
