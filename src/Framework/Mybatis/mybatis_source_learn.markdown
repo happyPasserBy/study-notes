@@ -22,7 +22,8 @@
 * MappedStatement.Builder
 > 创建MappedStatement
 ## 2.3 装饰器模式
-* 
+* Cache
+> ScheduledCache、LoggingCache等
 ## 3. 解析Mybatis-config.xml
 
 1. 创建SqlSessionFactory
