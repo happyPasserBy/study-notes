@@ -57,7 +57,22 @@
             * 创建 MappedStatement 对象
         10. mapper生成代理类，绑定命名空间后添加到Configuration中
 2. Sql执行过程
-
+    * 查询语句执行过程
+        1. 内部调用selectList
+        2. 获取 MappedStatement 
+        3. executor.query 执行
+        4. 创建BoundSql
+        5. 判断是否命中二级缓存
+        6. 判断是否命中一级缓存
+        7. 创建PreparedStatement执行sql 
+    * BoundSql 的创建
+        1. 创建 DynamicContext( Sql 语句构建的上下文)
+        2. 解析 Sql 片段，并将解析结果存储到 DynamicContext 中
+        3. 解析 Sql 语句，并构建 StaticSqlSource
+        4. 调用 StaticSqlSource 的 getBoundSql 获取 BoundSql
+        5. DynamicContext 的 ContextMap 中的内容拷贝到 BoundSql 中
+        6. 解析 #{} 
+    * 结果集的映射
 ## 参考
 1. https://www.cnblogs.com/nullllun/p/9352792.html
 2. https://github.com/SeasonPanPan/minimybatis
