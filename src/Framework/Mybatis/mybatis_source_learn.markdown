@@ -14,7 +14,7 @@
 * XMLMapperBuilder: Mapper的XML解析对象
 ## 2. 设计模式
 ## 2.1 代理模式
-
+> 
 ## 2.2 建造者模式
 * SqlSessionFactory
 * DefaultReflectorFactory
@@ -24,7 +24,20 @@
 ## 2.3 装饰器模式
 * Cache
 > ScheduledCache、LoggingCache等
-## 3. 解析Mybatis-config.xml
+## 2.4 单例模式
+
+## 2.5 模板方法模式
+
+## 2.6 适配器模式
+* Logfactory
+## 3. Mybatis的三层家架构
+### 3.1 基础支持层
+> 用于支撑核心处理层，本层包括数据源模块、事物管理模块、缓存模块、日志模块、解析器模块等等
+### 3.2 核心处理层
+> 
+### 3.3 接口层 
+
+## 2. Mybaits的执行流程
 
 1. 创建SqlSessionFactory
     * 创建Configuration 
