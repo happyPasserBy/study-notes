@@ -23,8 +23,138 @@
 > 用于将JavaType于JdbcType相互转换。TypeHandler有众多实现类用于转换类型如: IntegerTypeHandler、SqlDateTypeHandler等。
 ### 3.2 TypeHandlerRegister
 > 注册并管理TypeHandler、JavaType、JdbcType这三者的关系。
+#### 3.2.1 成员变量
+* private final Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMap = new EnumMap(JdbcType.class);
+> 保存了JdbcType与TypeHandler的关系
+* private final Map<Type, Map<JdbcType, TypeHandler<?>>> typeHandlerMap = new ConcurrentHashMap();
+> 保存了Java转换为JdbcType所需要的TypeHandler，Java对象可转为多个JdbcType
+* private final TypeHandler<Object> unknownTypeHandler = new UnknownTypeHandler(this);
+> 保存了全部的TypeHandler与之对应的对象
+* private final Map<Class<?>, TypeHandler<?>> allTypeHandlersMap = new HashMap();
+> 
+* private static final Map<JdbcType, TypeHandler<?>> NULL_TYPE_HANDLER_MAP = Collections.emptyMap();
+> 
+* private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
+> 
+### 3.3.2 常用方法一  register(Type javaType, JdbcType jdbcType, TypeHandler<?> handler)
+```
+private void register(Type javaType, JdbcType jdbcType, TypeHandler<?> handler) {
+    if (javaType != null) {
+        // 建立javaType、jdbcType、handler三者的关系
+        Map<JdbcType, TypeHandler<?>> map = (Map)this.typeHandlerMap.get(javaType);
+        if (map == null || map == NULL_TYPE_HANDLER_MAP) {
+            map = new HashMap();
+            this.typeHandlerMap.put(javaType, map);
+        }
+
+        ((Map)map).put(jdbcType, handler);
+    }
+    // 添加到全部handler集合中
+    this.allTypeHandlersMap.put(handler.getClass(), handler);
+}
+```
+### 3.3.2 常用方法二  register(Type javaType, TypeHandler<? extends T> typeHandler)
+> 获取typeHandler的MappedJdbcTypes注解后建立关联关系
+```
+private <T> void register(Type javaType, TypeHandler<? extends T> typeHandler) {
+    MappedJdbcTypes mappedJdbcTypes = (MappedJdbcTypes)typeHandler.getClass().getAnnotation(MappedJdbcTypes.class);
+    if (mappedJdbcTypes != null) {
+        JdbcType[] var4 = mappedJdbcTypes.value();
+        int var5 = var4.length;
+
+        for(int var6 = 0; var6 < var5; ++var6) {
+            JdbcType handledJdbcType = var4[var6];
+            // 调用常用方法一
+            this.register(javaType, handledJdbcType, typeHandler);
+        }
+
+        if (mappedJdbcTypes.includeNullJdbcType()) {
+            // 调用常用方法一
+            this.register((Type)javaType, (JdbcType)null, (TypeHandler)typeHandler);
+        }
+    } else {
+        // 调用常用方法一
+        this.register((Type)javaType, (JdbcType)null, (TypeHandler)typeHandler);
+    }
+
+}
+```
+### 3.3.3 常用方法三  register(Class<?> typeHandlerClass)
+> 获取MappedTypes注解后再建立关联关系
+```
+public void register(Class<?> typeHandlerClass) {
+    boolean mappedTypeFound = false;
+    MappedTypes mappedTypes = (MappedTypes)typeHandlerClass.getAnnotation(MappedTypes.class);
+    if (mappedTypes != null) {
+        Class[] var4 = mappedTypes.value();
+        int var5 = var4.length;
+
+        for(int var6 = 0; var6 < var5; ++var6) {
+            Class<?> javaTypeClass = var4[var6];
+            // 常用方法二
+            this.register(javaTypeClass, typeHandlerClass);
+            mappedTypeFound = true;
+        }
+    }
+
+    if (!mappedTypeFound) {
+        this.register(this.getInstance((Class)null, typeHandlerClass));
+    }
+
+}
+```
+### 3.3.4 常用方法四  register(JdbcType jdbcType, TypeHandler<?> handler)
+> 向jdbcTypeHandlerMap注册
+```
+public void register(JdbcType jdbcType, TypeHandler<?> handler) {
+    this.jdbcTypeHandlerMap.put(jdbcType, handler);
+}
+```
+### 3.3.5 常用方法五  register(String packageName)
+> 解析指定包下的文件
+```
+public void register(String packageName) {
+    ResolverUtil<Class<?>> resolverUtil = new ResolverUtil();
+    resolverUtil.find(new IsA(TypeHandler.class), packageName);
+    Set<Class<? extends Class<?>>> handlerSet = resolverUtil.getClasses();
+    Iterator var4 = handlerSet.iterator();
+
+    while(var4.hasNext()) {
+        Class<?> type = (Class)var4.next();
+        if (!type.isAnonymousClass() && !type.isInterface() && !Modifier.isAbstract(type.getModifiers())) {
+            this.register(type);
+        }
+    }
+
+}
+```
+### 3.3.6 常用方法六 getTypeHandler(Type type, JdbcType jdbcType)
+> 根据JavaType与JdbcType获取handler
+```
+private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
+    if (ParamMap.class.equals(type)) {
+        return null;
+    } else {
+        Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = this.getJdbcHandlerMap(type);
+        TypeHandler<?> handler = null;
+        if (jdbcHandlerMap != null) {
+            handler = (TypeHandler)jdbcHandlerMap.get(jdbcType);
+            if (handler == null) {
+                handler = (TypeHandler)jdbcHandlerMap.get((Object)null);
+            }
+
+            if (handler == null) {
+                handler = this.pickSoleHandler(jdbcHandlerMap);
+            }
+        }
+
+        return handler;
+    }
+}
+```
 ### 3.3 TypeAliasRegister
 > 注册并管理Java类的别名，在TypeAliasRegister的构造方法中会初始化Java常用类的别名,TypeAliasRegister维护了一个HashMap，key为别名，value为对应的class。
+
 ## 4. 日志模块
 ## 5. 资源加载
 ### 5.1 ClassLoaderWrapper

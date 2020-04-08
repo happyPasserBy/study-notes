@@ -168,7 +168,41 @@ private void databaseIdProviderElement(XNode context) throws Exception {
 
 }
 ```
+#### 1.2.10 解析typeHandlers节点
+> 用于配置JavaType与JdbcType的相互转换
+```
+private void typeHandlerElement(XNode parent) {
+    if (parent != null) {
+        Iterator var2 = parent.getChildren().iterator();
 
+        while(var2.hasNext()) {
+            XNode child = (XNode)var2.next();
+            String typeHandlerPackage;
+            if ("package".equals(child.getName())) {
+                typeHandlerPackage = child.getStringAttribute("name");
+                this.typeHandlerRegistry.register(typeHandlerPackage);
+            } else {
+                typeHandlerPackage = child.getStringAttribute("javaType");
+                String jdbcTypeName = child.getStringAttribute("jdbcType");
+                String handlerTypeName = child.getStringAttribute("handler");
+                Class<?> javaTypeClass = this.resolveClass(typeHandlerPackage);
+                JdbcType jdbcType = this.resolveJdbcType(jdbcTypeName);
+                Class<?> typeHandlerClass = this.resolveClass(handlerTypeName);
+                if (javaTypeClass != null) {
+                    if (jdbcType == null) {
+                        this.typeHandlerRegistry.register(javaTypeClass, typeHandlerClass);
+                    } else {
+                        this.typeHandlerRegistry.register(javaTypeClass, jdbcType, typeHandlerClass);
+                    }
+                } else {
+                    this.typeHandlerRegistry.register(typeHandlerClass);
+                }
+            }
+        }
+    }
+
+}
+```
 ### 1.3 XMLMapperBuilder
 > 解析Mapper.xml文件
 ```
