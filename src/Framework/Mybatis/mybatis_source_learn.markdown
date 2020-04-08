@@ -21,6 +21,8 @@
 > 创建Reflector
 * MappedStatement.Builder
 > 创建MappedStatement
+* BaseBuild
+> XMLMapperBuilder、SqlSourceBuilder
 ## 2.3 装饰器模式
 * Cache
 > ScheduledCache、LoggingCache等
@@ -29,7 +31,7 @@
 ## 2.5 模板方法模式
 
 ## 2.6 适配器模式
-* Logfactory
+* LogFactory
 ## 3. Mybatis的三层家架构
 ### 3.1 基础支持层
 > 用于支撑核心处理层，本层包括数据源模块、事物管理模块、缓存模块、日志模块、解析器模块等等
