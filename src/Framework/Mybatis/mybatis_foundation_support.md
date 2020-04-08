@@ -24,7 +24,7 @@
 ### 3.2 TypeHandlerRegister
 > 注册并管理TypeHandler、JavaType、JdbcType这三者的关系。
 ### 3.3 TypeAliasRegister
-> 注册并管理Java类的别名，在TypeAliasRegister的构造方法中会初始化Java常用类的别名。
+> 注册并管理Java类的别名，在TypeAliasRegister的构造方法中会初始化Java常用类的别名,TypeAliasRegister维护了一个HashMap，key为别名，value为对应的class。
 ## 4. 日志模块
 ## 5. 资源加载
 ### 5.1 ClassLoaderWrapper
