@@ -206,6 +206,19 @@ private void typeHandlerElement(XNode parent) {
 ### 1.3 XMLMapperBuilder
 > 解析Mapper.xml文件
 ```
+public void parse() {
+    if (!this.configuration.isResourceLoaded(this.resource)) {
+        this.configurationElement(this.parser.evalNode("/mapper"));
+        this.configuration.addLoadedResource(this.resource);
+        this.bindMapperForNamespace();
+    }
+    // mapper节点解析完毕后再次初始化那些引用了未初始化对象的节点
+    this.parsePendingResultMaps();
+    this.parsePendingCacheRefs();
+    this.parsePendingStatements();
+}
+```
+```
 private void configurationElement(XNode context) {
     try {
         String namespace = context.getStringAttribute("namespace");
@@ -239,8 +252,43 @@ private void cacheElement(XNode context) throws Exception {
         boolean readWrite = !context.getBooleanAttribute("readOnly", false);
         boolean blocking = context.getBooleanAttribute("blocking", false);
         Properties props = context.getChildrenAsProperties();
+        // 创建cache
         this.builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
+}
+```
+> 配置CacheBuilder，最后build()是创建cache的核心方法
+```
+public Cache useNewCache(Class<? extends Cache> typeClass, Class<? extends Cache> evictionClass, Long flushInterval, Integer size, boolean readWrite, boolean blocking, Properties props) {
+    Cache cache = (new CacheBuilder(this.currentNamespace)).implementation((Class)this.valueOrDefault(typeClass, PerpetualCache.class)).addDecorator((Class)this.valueOrDefault(evictionClass, LruCache.class)).clearInterval(flushInterval).size(size).readWrite(readWrite).blocking(blocking).properties(props).build();
+    this.configuration.addCache(cache);
+    this.currentCache = cache;
+    return cache;
+}
+```
+```
+public Cache build() {
+    // 设置默认的Cache实现，Mybatis的Cache只有一个实现PerpetualCache但有多个Cache装饰器
+    this.setDefaultImplementations();
+    Cache cache = this.newBaseCacheInstance(this.implementation, this.id);
+    this.setCacheProperties((Cache)cache);
+    if (PerpetualCache.class.equals(cache.getClass())) {
+        Iterator var2 = this.decorators.iterator();
+
+        while(var2.hasNext()) {
+            Class<? extends Cache> decorator = (Class)var2.next();
+            // 应用Cache装饰器
+            cache = this.newCacheDecoratorInstance(decorator, (Cache)cache);
+            // 设置配置的属性值
+            this.setCacheProperties((Cache)cache);
+        }
+        // 根据配置的属性应用标准装饰器如：ScheduledCache、SerializedCache
+        cache = this.setStandardDecorators((Cache)cache);
+    } else if (!LoggingCache.class.isAssignableFrom(cache.getClass())) {
+        cache = new LoggingCache((Cache)cache);
+    }
+
+    return (Cache)cache;
 }
 ```
 #### 1.3.2 解析cache-ref节点
@@ -253,8 +301,10 @@ private void cacheRefElement(XNode context) {
         CacheRefResolver cacheRefResolver = new CacheRefResolver(this.builderAssistant, context.getStringAttribute("namespace"));
 
         try {
+            // 将引用关系设置到当前的namespace cache中
             cacheRefResolver.resolveCacheRef();
         } catch (IncompleteElementException var4) {
+            // 如引用了未初始化的cache则在最后会再次初始化
             this.configuration.addIncompleteCacheRef(cacheRefResolver);
         }
     }
@@ -263,6 +313,50 @@ private void cacheRefElement(XNode context) {
 ```
 #### 1.3.3 解析resultMap节点
 > 
+```
+private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings, Class<?> enclosingType) throws Exception {
+    ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
+    String type = resultMapNode.getStringAttribute("type", resultMapNode.getStringAttribute("ofType", resultMapNode.getStringAttribute("resultType", resultMapNode.getStringAttribute("javaType"))));
+    Class<?> typeClass = this.resolveClass(type);
+    if (typeClass == null) {
+        typeClass = this.inheritEnclosingType(resultMapNode, enclosingType);
+    }
+
+    Discriminator discriminator = null;
+    List<ResultMapping> resultMappings = new ArrayList();
+    resultMappings.addAll(additionalResultMappings);
+    List<XNode> resultChildren = resultMapNode.getChildren();
+    Iterator var9 = resultChildren.iterator();
+
+    while(var9.hasNext()) {
+        XNode resultChild = (XNode)var9.next();
+        if ("constructor".equals(resultChild.getName())) {
+            this.processConstructorElement(resultChild, typeClass, resultMappings);
+        } else if ("discriminator".equals(resultChild.getName())) {
+            discriminator = this.processDiscriminatorElement(resultChild, typeClass, resultMappings);
+        } else {
+            List<ResultFlag> flags = new ArrayList();
+            if ("id".equals(resultChild.getName())) {
+                flags.add(ResultFlag.ID);
+            }
+
+            resultMappings.add(this.buildResultMappingFromContext(resultChild, typeClass, flags));
+        }
+    }
+
+    String id = resultMapNode.getStringAttribute("id", resultMapNode.getValueBasedIdentifier());
+    String extend = resultMapNode.getStringAttribute("extends");
+    Boolean autoMapping = resultMapNode.getBooleanAttribute("autoMapping");
+    ResultMapResolver resultMapResolver = new ResultMapResolver(this.builderAssistant, id, typeClass, extend, discriminator, resultMappings, autoMapping);
+
+    try {
+        return resultMapResolver.resolve();
+    } catch (IncompleteElementException var14) {
+        this.configuration.addIncompleteResultMap(resultMapResolver);
+        throw var14;
+    }
+}
+```
 ### 1.4 解析Sql节点
 #### 1.4.1 MapperStatment
 > 用于表示XML中配置的Sql节点
