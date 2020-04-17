@@ -312,10 +312,11 @@ private void cacheRefElement(XNode context) {
 }
 ```
 #### 1.3.3 解析resultMap节点
-> 
+> 创建resultMap添加到Configuration的resultMaps中
 ```
 private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings, Class<?> enclosingType) throws Exception {
     ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
+    // 获取resultMap返回值类型
     String type = resultMapNode.getStringAttribute("type", resultMapNode.getStringAttribute("ofType", resultMapNode.getStringAttribute("resultType", resultMapNode.getStringAttribute("javaType"))));
     Class<?> typeClass = this.resolveClass(type);
     if (typeClass == null) {
@@ -323,18 +324,23 @@ private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> addi
     }
 
     Discriminator discriminator = null;
+    // 记录解析结果
     List<ResultMapping> resultMappings = new ArrayList();
     resultMappings.addAll(additionalResultMappings);
+    // 解析子节点
     List<XNode> resultChildren = resultMapNode.getChildren();
     Iterator var9 = resultChildren.iterator();
 
     while(var9.hasNext()) {
         XNode resultChild = (XNode)var9.next();
+        // constructor
         if ("constructor".equals(resultChild.getName())) {
             this.processConstructorElement(resultChild, typeClass, resultMappings);
         } else if ("discriminator".equals(resultChild.getName())) {
+        // discriminator
             discriminator = this.processDiscriminatorElement(resultChild, typeClass, resultMappings);
         } else {
+        // id
             List<ResultFlag> flags = new ArrayList();
             if ("id".equals(resultChild.getName())) {
                 flags.add(ResultFlag.ID);
@@ -345,11 +351,14 @@ private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> addi
     }
 
     String id = resultMapNode.getStringAttribute("id", resultMapNode.getValueBasedIdentifier());
+    // 获取继承的resultMap
     String extend = resultMapNode.getStringAttribute("extends");
+    // 是否开启自动映射
     Boolean autoMapping = resultMapNode.getBooleanAttribute("autoMapping");
     ResultMapResolver resultMapResolver = new ResultMapResolver(this.builderAssistant, id, typeClass, extend, discriminator, resultMappings, autoMapping);
 
     try {
+        // 添加到 Configuration 的resultMaps中，以resultMap的 namespace.id 为key resultMap为value
         return resultMapResolver.resolve();
     } catch (IncompleteElementException var14) {
         this.configuration.addIncompleteResultMap(resultMapResolver);
@@ -357,11 +366,235 @@ private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> addi
     }
 }
 ```
+#### 1.3.3.1 buildResultMappingFromContext
+> 创建resultMap的ResultMapping
+```
+private ResultMapping buildResultMappingFromContext(XNode context, Class<?> resultType, List<ResultFlag> flags) throws Exception {
+    String property;
+    if (flags.contains(ResultFlag.CONSTRUCTOR)) {
+        property = context.getStringAttribute("name");
+    } else {
+        property = context.getStringAttribute("property");
+    }
+
+    String column = context.getStringAttribute("column");
+    String javaType = context.getStringAttribute("javaType");
+    String jdbcType = context.getStringAttribute("jdbcType");
+    String nestedSelect = context.getStringAttribute("select");
+    String nestedResultMap = context.getStringAttribute("resultMap", this.processNestedResultMappings(context, Collections.emptyList(), resultType));
+    String notNullColumn = context.getStringAttribute("notNullColumn");
+    String columnPrefix = context.getStringAttribute("columnPrefix");
+    String typeHandler = context.getStringAttribute("typeHandler");
+    String resultSet = context.getStringAttribute("resultSet");
+    String foreignColumn = context.getStringAttribute("foreignColumn");
+    boolean lazy = "lazy".equals(context.getStringAttribute("fetchType", this.configuration.isLazyLoadingEnabled() ? "lazy" : "eager"));
+    // 根据javaType、typeHandler、jdbcType到别名系统中找到相应的class
+    Class<?> javaTypeClass = this.resolveClass(javaType);
+    Class<? extends TypeHandler<?>> typeHandlerClass = this.resolveClass(typeHandler);
+    JdbcType jdbcTypeEnum = this.resolveJdbcType(jdbcType);
+    // 开始创建
+    return this.builderAssistant.buildResultMapping(resultType, property, column, javaTypeClass, jdbcTypeEnum, nestedSelect, nestedResultMap, notNullColumn, columnPrefix, typeHandlerClass, flags, resultSet, foreignColumn, lazy);
+}
+```
+### 1.3.3.2 public ResultMap resolve()
+> 创建resultMap并添加
+```
+public ResultMap resolve() {
+    return this.assistant.addResultMap(this.id, this.type, this.extend, this.discriminator, this.resultMappings, this.autoMapping);
+}
+```
+```
+public ResultMap addResultMap(String id, Class<?> type, String extend, Discriminator discriminator, List<ResultMapping> resultMappings, Boolean autoMapping) {
+    id = this.applyCurrentNamespace(id, false);
+    extend = this.applyCurrentNamespace(extend, true);
+    ResultMap resultMap;
+    // 有继承的情况
+    if (extend != null) {
+        if (!this.configuration.hasResultMap(extend)) {
+            throw new IncompleteElementException("Could not find a parent resultmap with id '" + extend + "'");
+        }
+
+        resultMap = this.configuration.getResultMap(extend);
+        List<ResultMapping> extendedResultMappings = new ArrayList(resultMap.getResultMappings());
+        // 删除已经覆盖的ResultMapping
+        extendedResultMappings.removeAll(resultMappings);
+        boolean declaresConstructor = false;
+        Iterator var10 = resultMappings.iterator();
+        // 删除已经覆盖的CONSTRUCTOR节点
+        while(var10.hasNext()) {
+            ResultMapping resultMapping = (ResultMapping)var10.next();
+            if (resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR)) {
+                declaresConstructor = true;
+                break;
+            }
+        }
+
+        if (declaresConstructor) {
+            extendedResultMappings.removeIf((resultMappingx) -> {
+                return resultMappingx.getFlags().contains(ResultFlag.CONSTRUCTOR);
+            });
+        }
+
+        resultMappings.addAll(extendedResultMappings);
+    }
+    // 最终的创建
+    resultMap = (new org.apache.ibatis.mapping.ResultMap.Builder(this.configuration, id, type, resultMappings, autoMapping)).discriminator(discriminator).build();
+    // 添加到configuration
+    this.configuration.addResultMap(resultMap);
+    return resultMap;
+}
+```
 ### 1.4 解析Sql节点
-#### 1.4.1 MapperStatment
+#### 1.4.1 MappedStatement
 > 用于表示XML中配置的Sql节点
+```
+public void parseStatementNode() {
+    String id = this.context.getStringAttribute("id");
+    // 判断当前的databaseId与配置的databaseIdProvider是否相匹配
+    String databaseId = this.context.getStringAttribute("databaseId");
+    if (this.databaseIdMatchesCurrent(id, databaseId, this.requiredDatabaseId)) {
+        String nodeName = this.context.getNode().getNodeName();
+        // slq类型，select、insert、update、delete
+        SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
+        boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
+        boolean flushCache = this.context.getBooleanAttribute("flushCache", !isSelect);
+        boolean useCache = this.context.getBooleanAttribute("useCache", isSelect);
+        boolean resultOrdered = this.context.getBooleanAttribute("resultOrdered", false);
+        // 处理include节点
+        XMLIncludeTransformer includeParser = new XMLIncludeTransformer(this.configuration, this.builderAssistant);
+        includeParser.applyIncludes(this.context.getNode());
+        String parameterType = this.context.getStringAttribute("parameterType");
+        Class<?> parameterTypeClass = this.resolveClass(parameterType);
+        String lang = this.context.getStringAttribute("lang");
+        LanguageDriver langDriver = this.getLanguageDriver(lang);
+        // 处理selectKey
+        this.processSelectKeyNodes(id, parameterTypeClass, langDriver);
+        String keyStatementId = id + "!selectKey";
+        keyStatementId = this.builderAssistant.applyCurrentNamespace(keyStatementId, true);
+        Object keyGenerator;
+        if (this.configuration.hasKeyGenerator(keyStatementId)) {
+            keyGenerator = this.configuration.getKeyGenerator(keyStatementId);
+        } else {
+            keyGenerator = this.context.getBooleanAttribute("useGeneratedKeys", this.configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType)) ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
+        }
+
+        SqlSource sqlSource = langDriver.createSqlSource(this.configuration, this.context, parameterTypeClass);
+        StatementType statementType = StatementType.valueOf(this.context.getStringAttribute("statementType", StatementType.PREPARED.toString()));
+        Integer fetchSize = this.context.getIntAttribute("fetchSize");
+        Integer timeout = this.context.getIntAttribute("timeout");
+        String parameterMap = this.context.getStringAttribute("parameterMap");
+        String resultType = this.context.getStringAttribute("resultType");
+        Class<?> resultTypeClass = this.resolveClass(resultType);
+        String resultMap = this.context.getStringAttribute("resultMap");
+        String resultSetType = this.context.getStringAttribute("resultSetType");
+        ResultSetType resultSetTypeEnum = this.resolveResultSetType(resultSetType);
+        if (resultSetTypeEnum == null) {
+            resultSetTypeEnum = this.configuration.getDefaultResultSetType();
+        }
+
+        String keyProperty = this.context.getStringAttribute("keyProperty");
+        String keyColumn = this.context.getStringAttribute("keyColumn");
+        String resultSets = this.context.getStringAttribute("resultSets");
+        this.builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType, fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass, resultSetTypeEnum, flushCache, useCache, resultOrdered, (KeyGenerator)keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets);
+    }
+}
+```
+#### 1.4.1.1 解析applyIncludes
+```
+public void applyIncludes(Node source) {
+    // 获取全局变量
+    Properties variablesContext = new Properties();
+    Properties configurationVariables = this.configuration.getVariables();
+    Optional var10000 = Optional.ofNullable(configurationVariables);
+    Objects.requireNonNull(variablesContext);
+    var10000.ifPresent(variablesContext::putAll);
+    this.applyIncludes(source, variablesContext, false);
+}
+```
+#### 1.4.1.2 解析applyIncludes
+```
+private void applyIncludes(Node source, Properties variablesContext, boolean included) {
+    if (source.getNodeName().equals("include")) {
+        // 获取refid所引用的sql节点
+        Node toInclude = this.findSqlFragment(this.getStringAttribute(source, "refid"), variablesContext);
+        // 将source中配置的Properties与全局配置的Properties合并
+        Properties toIncludeContext = this.getVariablesContext(source, variablesContext);
+        // 递归处理防止循环嵌套include
+        this.applyIncludes(toInclude, toIncludeContext, true);
+        if (toInclude.getOwnerDocument() != source.getOwnerDocument()) {
+            toInclude = source.getOwnerDocument().importNode(toInclude, true);
+        }
+        // 将include节点替换成sql节点
+        source.getParentNode().replaceChild(toInclude, source);
+        
+        while(toInclude.hasChildNodes()) {
+            toInclude.getParentNode().insertBefore(toInclude.getFirstChild(), toInclude);
+        }
+        // 删除include节点
+        toInclude.getParentNode().removeChild(toInclude);
+    } else if (source.getNodeType() == 1) {
+        int i;
+        if (included && !variablesContext.isEmpty()) {
+            NamedNodeMap attributes = source.getAttributes();
+
+            for(i = 0; i < attributes.getLength(); ++i) {
+                Node attr = attributes.item(i);
+                attr.setNodeValue(PropertyParser.parse(attr.getNodeValue(), variablesContext));
+            }
+        }
+
+        NodeList children = source.getChildNodes();
+
+        for(i = 0; i < children.getLength(); ++i) {
+            this.applyIncludes(children.item(i), variablesContext, included);
+        }
+    } else if (included && source.getNodeType() == 3 && !variablesContext.isEmpty()) {
+        // 替换${}占位符
+        source.setNodeValue(PropertyParser.parse(source.getNodeValue(), variablesContext));
+    }
+
+}
+```
+#### 1.4.2 解析selectKey节点
+```
+
+```
 ### 1.5 绑定Mapper 
 
+### 1.6 解析incomplete集合
+```
+public void parse() {
+    if (!this.configuration.isResourceLoaded(this.resource)) {
+        this.configurationElement(this.parser.evalNode("/mapper"));
+        this.configuration.addLoadedResource(this.resource);
+        this.bindMapperForNamespace();
+    }
+    
+    this.parsePendingResultMaps();
+    this.parsePendingCacheRefs();
+    this.parsePendingStatements();
+}
+```
+```
+private void parsePendingResultMaps() {
+    Collection<ResultMapResolver> incompleteResultMaps = this.configuration.getIncompleteResultMaps();
+    // 加锁
+    synchronized(incompleteResultMaps) {
+        Iterator iter = incompleteResultMaps.iterator();
+
+        while(iter.hasNext()) {
+            try {
+                // 重新解析
+                ((ResultMapResolver)iter.next()).resolve();
+                // 删除
+                iter.remove();
+            } catch (IncompleteElementException var6) {
+            }
+        }
+
+    }
+}
+```
 
 
 
