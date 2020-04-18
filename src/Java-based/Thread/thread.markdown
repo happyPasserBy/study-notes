@@ -270,10 +270,6 @@ public class NotificationDemo {
 ```
 ## yield
 1. 定义: Thread.yield暗示调度器当前线程可以让出资源，当不会对锁造成影响，yield方法只会给相同优先级或更高优先级的线程以运行的机会
-## ThreadLocal
-1. 用于提供线程的局部变量，也就是说为每个线程创建变量副本，ThreadLocal与同步机制有些差异，同步机制保证的是数据的一致性，而ThreadLocal保证的是多线程环境的下数据独立性
-2. 每个线程都有一个ThreadLocalMap用来存储线程变量
-
 
 ## 参考
 1. http://www.ruanyifeng.com/blog/2013/04/processes_and_threads.html

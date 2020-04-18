@@ -1,0 +1,3 @@
+# ThreadLocal
+> 用于提供线程的局部变量，也就是说为每个线程创建变量副本，ThreadLocal与同步机制有些差异，同步机制保证的是数据的一致性，
+> 而ThreadLocal保证的是多线程环境的下数据独立性,每个线程都有一个ThreadLocalMap用来存储线程变量
