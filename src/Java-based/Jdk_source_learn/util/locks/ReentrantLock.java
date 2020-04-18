@@ -1,6 +1,5 @@
 
-# ReentrantLock
-```
+// ReentrantLock
 public class ReentrantLock implements Lock, java.io.Serializable {
     private static final long serialVersionUID = 7373984872572414699L;
     /** Synchronizer providing all implementation mechanics */
@@ -27,12 +26,15 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         final boolean nonfairTryAcquire(int acquires) {
             final Thread current = Thread.currentThread();
             int c = getState();
+            // 没有线程持锁
             if (c == 0) {
+                // CAS加锁
                 if (compareAndSetState(0, acquires)) {
                     setExclusiveOwnerThread(current);
                     return true;
                 }
             }
+            // 判断是否可以重入
             else if (current == getExclusiveOwnerThread()) {
                 int nextc = c + acquires;
                 if (nextc < 0) // overflow
@@ -45,13 +47,17 @@ public class ReentrantLock implements Lock, java.io.Serializable {
 
         protected final boolean tryRelease(int releases) {
             int c = getState() - releases;
+            // 如果释放锁的线程不等于持锁线程则异常
             if (Thread.currentThread() != getExclusiveOwnerThread())
                 throw new IllegalMonitorStateException();
             boolean free = false;
+            // 0 为没有线程持锁状态
             if (c == 0) {
                 free = true;
+                // 设置持锁线程为null
                 setExclusiveOwnerThread(null);
             }
+            // 设置锁状态，不一定为0
             setState(c);
             return free;
         }
@@ -101,6 +107,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * acquire on failure.
          */
         final void lock() {
+            // 直接cas加锁
             if (compareAndSetState(0, 1))
                 setExclusiveOwnerThread(Thread.currentThread());
             else
@@ -134,10 +141,13 @@ public class ReentrantLock implements Lock, java.io.Serializable {
                     return true;
                 }
             }
+            // 判断持锁线程与当前线程是否相同(可重入)
             else if (current == getExclusiveOwnerThread()) {
                 int nextc = c + acquires;
+                // 持锁次数异常判断
                 if (nextc < 0)
                     throw new Error("Maximum lock count exceeded");
+                // 重新设置state
                 setState(nextc);
                 return true;
             }
@@ -179,5 +189,3 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         sync.lock();
     }
 }
-
-```
