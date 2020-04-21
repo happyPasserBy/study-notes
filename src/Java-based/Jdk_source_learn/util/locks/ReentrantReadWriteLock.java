@@ -441,10 +441,13 @@ public class ReentrantReadWriteLock
     // 非公平锁
     static final class NonfairSync extends Sync {
         private static final long serialVersionUID = -8159625535654395037L;
+        // 因为读写锁的特性，只能被一个线程持有且在非公并下，所以写锁可以插队
         final boolean writerShouldBlock() {
             return false; // writers can always barge
         }
-        final boolean readerShouldBlock() {
+
+        // 判断队列的头结点是否是排它锁(写锁)，如果是则返回true进行阻塞
+        final boolean readerShouldBlock()  {
             /* As a heuristic to avoid indefinite writer starvation,
              * block if the thread that momentarily appears to be head
              * of queue, if one exists, is a waiting writer.  This is
@@ -459,9 +462,12 @@ public class ReentrantReadWriteLock
     // 公平锁
     static final class FairSync extends Sync {
         private static final long serialVersionUID = -2274990926593161451L;
+
+        // 判断当前是否有线程正在排队等待获取锁
         final boolean writerShouldBlock() {
             return hasQueuedPredecessors();
         }
+        // 判断当前是否有线程正在排队等待获取锁
         final boolean readerShouldBlock() {
             return hasQueuedPredecessors();
         }
