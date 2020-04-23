@@ -9,9 +9,9 @@ s = "leetcode"
 s = "loveleetcode",
 返回 2.
 ```
-## 1. 解题思路一
+## 1. 解题思路一 HashMap
 ### 1.1 思路
-> 
+> 使用HashMap存储每个字符串出现的次数，在遍历字符串一次判断是否出现一次即可。
 ### 1.2 具体实现
 ```
 public class Chapter {
