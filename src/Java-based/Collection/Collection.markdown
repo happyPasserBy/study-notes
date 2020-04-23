@@ -69,15 +69,6 @@
     4. Hashtable
         * 基于数组+链表实现，线程安全
         * null不可作为键亦不可作为值
-    5. ConcurrentHashMap
-        * ConcurrentHashMap与HashMap的底层数据结构一致
-        * 不允许插入Null键
-        * 存在多线程操作资源的时候，Hashtable与包装后的HashMap效率低，synchronized以当前对象作为锁，同一时间只能有一个线程在执行
-        * ConcurrentHashMap将锁住的资源进行更细化的拆分，优化后数组中每个数据有拥有自己的锁，加锁机制采用CAS+synchronized
-            1. 数组中的每个元素保存的是链表或红黑树的头节点
-            2. 当调用ConcurrentHashMap存储方法时，判断插入的是否是头结点
-                * 是则采用CAS插入，失败则循环重试
-                * 不是则采用synchronized加锁进行操作
 6. Map与Collection接口的区别
     1. Map是双列集合的根接口，Collection是单列集合的根接口
     2. Map的数据结构是针对键而Collection是针对元素
