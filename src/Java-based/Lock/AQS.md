@@ -1,18 +1,26 @@
 # AQS
 > 并发同步框架，当多个线程访问共享资源时，如果获取到锁继续操作，反之将进入队列进行排队,AQS的两个核心:资源(state)与FIFO队列，AQS还定义了两种资源共享方式: 独占(ReentrantLock)与共享(CountDownLatch)
-3. 公平锁: 当线程等待的时间越久获取到锁的概率越大
-4. 使用lock()后必须释放锁unlock();锁需要执行的代码尽量放入try catch中，防止死锁
-5. synchronized与ReentrantLock最本质的区别:
-    * synchronized和ReentrantLock的区别synchronized基于对象头加锁，而ReentrantLock基于Unsafe.pack()
-## ReentrantLock(再入锁)
+## 1. state
+> 被volatile修饰的int类型成员变量，state在不同的AQS实现类中有不同的作用。
+* ReentrantLock: state代表加锁的次数
+* Semaphore：state代表剩余的令牌数量
+* CountDownLatch：state代表剩余数量
+## 2. FIFO队列
+> FIFO队列底层是一个双向链表，每个节点维护的是没有抢夺到锁而进入等待状态的线程。不同的AQS实现类可根据是否公平等条件选择从头节点或其它节点获取线程。
+## 3.ReentrantLock(再入锁)
 1. 特点
     * 基于AQS实现，能够实现比synchronized更细粒度的控制，比如控制公平性
     * 性能方面与JDK1.8版本中的synchronized是不相上下并且都是可重入
     * 能够判断是否有线程或者某个特定的线程在排队等待锁
     * 可以设置获取锁的超时时间，也就是说在一段时间后没有获得锁将不在尝试获取锁
     * 感知有没有成功获取锁
-## CountDownLatch
-> 某个线程等待一个或多个线程达到某个状态后继续执行
+2. 
+    * 公平锁: 当线程等待的时间越久获取到锁的概率越大
+    * 使用lock()后必须释放锁unlock();锁需要执行的代码尽量放入try catch中，防止死锁
+    * synchronized与ReentrantLock最本质的区别:synchronized和ReentrantLock的区别synchronized基于对象头加锁，而ReentrantLock基于Unsafe.pack()
+## 4.CountDownLatch
+> 某个线程等待一个或多个线程达到某个状态后继续执行。
+### 4.1 栗子
 ```java
 public class Test {
     public static void main(String[] args) {
@@ -47,8 +55,9 @@ public class Test {
 //2个子线程已经执行完毕
 //继续执行主线程
 ```
-## CyclicBarrier
-> 某组线程都达到固定状态后执行各自任务
+## 5.   CyclicBarrier
+> 某组线程都达到固定状态后开始执行指定任务与各自任务。
+### 5.1 栗子
 ```java
 public class Test2 {
     public static void main(String[] args) {
@@ -91,8 +100,12 @@ public class Test2 {
 //所有线程写入完毕，继续处理其他任务...
 //所有线程写入完毕，继续处理其他任务...
 ```
-## Semaphore
-> 控制某个资源的访问量，由Semaphore控制与颁发访问令牌
+### 5.2 CountDownLatch与CyclicBarrier的不同
+* CountDownLatch是当计数达到0时开始执行，而达到0是用countDown()方法，CyclicBarrier看似也是达到固定数值开始执行，但CyclicBarrier是基于线程的await()。换句话说CountDownLatch基于方法，可以在同一线程下多次countDown()，而CyclicBarrier是基于线程的，线程多次await()只生效一次。
+* CountDownLatch达到0时无法再次使用，CyclicBarrier是只要达到指定数值就开始执行任务。
+## 6.Semaphore
+> 控制某个资源的访问量，由Semaphore控制与颁发访问令牌。
+### 6.1栗子
 ```java
 public class Test {
     public static void main(String[] args) {
@@ -123,3 +136,5 @@ public class Test {
     }
 }
 ```
+## AQS源码分析
+[链接](../Jdk_source_learn/util/locks/AbstractQueuedSynchronizer.java)
