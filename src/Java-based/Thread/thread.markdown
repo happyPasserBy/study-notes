@@ -34,6 +34,7 @@
 ## Thread与Runnable的区别
 1. Runnable是一个接口,Thread是一个类并且它实现了Runnable
 2. 都说Runnable和Thread是实现多线程的两种方式，但个人感觉最终创建线程并执行的还是Thread,只不过实现了Runnable说明该类是应用于多线程的，而Runnable是一个多线程标识
+3. Runnable中run方法有两个缺陷：1.无法返回值,2.无法抛出异常。缺陷产生的原因是最终调用run方法的是JDK内部，我们无法直接接收或捕获返回值。
 
 ## 处理线程的返回值
 1. 主线程等待法
