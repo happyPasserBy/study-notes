@@ -17,24 +17,26 @@
 ```
 public class Chapter {
     public static int search(int[] nums, int target) {
-        int n = nums.length;
-        if (n == 0) return -1;
-        if (n == 1) return nums[0] == target ? 0 : -1;
-        int l = 0, r = n - 1;
-        while (l <= r) {
-            int mid = (l + r) / 2;
-            if (nums[mid] == target) return mid;
-            if (nums[0] <= nums[mid]) {
-                if (nums[0] <= target && target < nums[mid]) {
-                    r = mid - 1;
-                } else {
-                    l = mid + 1;
+        if(nums.length == 0)return -1;
+        int begin = 0;
+        int end = nums.length-1;
+        int middle = 0;
+        while (begin <= end && end < nums.length && begin >= 0) {
+            middle = (begin+end)/2;
+            if(nums[begin] == target) return begin;
+            if(nums[end] == target) return end;
+            if(nums[middle] == target) return middle;
+            if(nums[begin] < nums[middle]){
+                if(nums[begin] < target && nums[middle] > target) {
+                    end = middle-1;
+                }else {
+                    begin = middle+1;
                 }
-            } else {
-                if (nums[mid] < target && target <= nums[n - 1]) {
-                    l = mid + 1;
-                } else {
-                    r = mid - 1;
+            }else {
+                if(nums[middle] < target && nums[end] > target) {
+                    begin = middle+1;
+                }else {
+                    end = middle-1;
                 }
             }
         }
