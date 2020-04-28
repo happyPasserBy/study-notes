@@ -65,6 +65,13 @@ public abstract class AbstractQueuedSynchronizer
          * CONDITION for condition nodes.  It is modified using CAS
          * (or when possible, unconditional volatile writes).
          */
+         /*
+         * CANCELLED 表示当前的线程被取消
+         * SIGNAL 表示当前节点的后继节点包含的线程需要运行，也就是unpark
+         * CONDITION 表示当前节点在等待condition，也就是在condition队列中
+         * PROPAGATE 一个共享的锁需要传递释放信号到其它节点
+         * 0 表示当前节点在sync队列中，等待着获取锁
+         */
         volatile int waitStatus;
 
         /**
@@ -155,7 +162,7 @@ public abstract class AbstractQueuedSynchronizer
     // 尾指针
     private transient volatile Node tail;
 
-    // AQS的核心状态 当加锁成功时 state+1
+    // AQS的核心状态 当加锁成功时根据不同的实现类改变不同的值，如ReentrantLock是+1
     private volatile int state;
 
     /**
@@ -206,14 +213,19 @@ public abstract class AbstractQueuedSynchronizer
      * @param node the node to insert
      * @return node's predecessor
      */
+     /*
+     * 插入节点并创建虚拟尾节点
+     */
     private Node enq(final Node node) {
         for (;;) {
             Node t = tail;
             if (t == null) { // Must initialize
+                // 虚拟头结点
                 if (compareAndSetHead(new Node()))
                     tail = head;
             } else {
                 node.prev = t;
+                // cas 插入尾节点
                 if (compareAndSetTail(t, node)) {
                     t.next = node;
                     return t;
@@ -232,6 +244,7 @@ public abstract class AbstractQueuedSynchronizer
         Node node = new Node(Thread.currentThread(), mode);
         // Try the fast path of enq; backup to full enq on failure
         Node pred = tail;
+        // 前指针不为null则cas插入至尾节点
         if (pred != null) {
             node.prev = pred;
             if (compareAndSetTail(pred, node)) {
@@ -239,6 +252,7 @@ public abstract class AbstractQueuedSynchronizer
                 return node;
             }
         }
+        // 需要初始化虚拟头节点
         enq(node);
         return node;
     }
@@ -280,10 +294,15 @@ public abstract class AbstractQueuedSynchronizer
         Node s = node.next;
         if (s == null || s.waitStatus > 0) {
             s = null;
+            /** 
+            * 为什么从后往前请看enq方法，总结一句就是同步队列采用双向链表，在插入尾节点时需要更改前后指针关系，两次更改并非原子性，
+            * 从前往后会有问题
+            */
             for (Node t = tail; t != null && t != node; t = t.prev)
                 if (t.waitStatus <= 0)
                     s = t;
         }
+        // 唤醒
         if (s != null)
             LockSupport.unpark(s.thread);
     }
@@ -814,6 +833,7 @@ public abstract class AbstractQueuedSynchronizer
     public final void acquire(int arg) {
         // 获取锁失败 并 加入到队列中
         if (!tryAcquire(arg) &&
+            // EXCLUSIVE为独占
             acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
             // 唤醒当前线程
             selfInterrupt();
@@ -880,6 +900,7 @@ public abstract class AbstractQueuedSynchronizer
         // true为已经释放了锁
         if (tryRelease(arg)) {
             Node h = head;
+            // 头结点不是null且状态不为0则可以被唤醒
             if (h != null && h.waitStatus != 0)
                 // 唤醒下一个线程
                 unparkSuccessor(h);
@@ -1889,3 +1910,65 @@ public abstract class AbstractQueuedSynchronizer
         return unsafe.compareAndSwapObject(node, nextOffset, expect, update);
     }
 }
+/* 
+final boolean acquireQueued(final Node node, int arg) {//这里的node 就是当前线程封装的那个node 下文叫做nc
+    //记住标志很重要
+    boolean failed = true;
+    try {
+        //同样是一个标志
+        boolean interrupted = false;
+        //死循环
+        for (;;) {
+            //获取nc的上一个节点，有两种情况；1、上一个节点为头部；2上一个节点不为头部
+            final Node p = node.predecessor();
+            //如果nc的上一个节点为头部，则表示nc为队列当中的第二个元素，为队列当中的第一个排队的Node；
+            //这里的第一和第二不冲突；我上文有解释；
+            //如果nc为队列当中的第二个元素，第一个排队的则调用tryAcquire去尝试加锁---关于tryAcquire看上面的分析
+            //只有nc为第二个元素；第一个排队的情况下才会尝试加锁，其他情况直接去park了，
+            //因为第一个排队的执行到这里的时候需要看看持有有锁的线程有没有释放锁，释放了就轮到我了，就不park了
+            //有人会疑惑说开始调用tryAcquire加锁失败了（需要排队），这里为什么还要进行tryAcquire不是重复了吗？
+            //其实不然，因为第一次tryAcquire判断是否需要排队，如果需要排队，那么我就入队；
+            //当我入队之后我发觉前面那个人就是第一个，持有锁的那个，那么我不死心，再次问问前面那个人搞完没有
+            //如果他搞完了，我就不park，接着他搞我自己的事；如果他没有搞完，那么我则在队列当中去park，等待别人叫我
+            //但是如果我去排队，发觉前面那个人在睡觉，前面那个人都在睡觉，那么我也睡觉把---------------好好理解一下
+            if (p == head && tryAcquire(arg)) {
+                //能够执行到这里表示我来加锁的时候，锁被持有了，我去排队，进到队列当中的时候发觉我前面那个人没有park，
+                //前面那个人就是当前持有锁的那个人，那么我问问他搞完没有
+                //能够进到这个里面就表示前面那个人搞完了；所以这里能执行到的几率比较小；但是在高并发的世界中这种情况真的需要考虑
+                //如果我前面那个人搞完了，我nc得到锁了，那么前面那个人直接出队列，我自己则是对首；这行代码就是设置自己为对首
+                setHead(node);
+                //这里的P代表的就是刚刚搞完事的那个人，由于他的事情搞完了，要出队；怎么出队？把链表关系删除
+                p.next = null; // help GC
+                //设置表示---记住记加锁成功的时候为false
+                failed = false;
+                //返回false；为什么返回false？下次博客解释---比较复杂和加锁无关
+                return interrupted;
+            }
+            //进到这里分为两种情况
+            //1、nc的上一个节点不是头部，说白了，就是我去排队了，但是我上一个人不是队列第一个
+            //2、第二种情况，我去排队了，发觉上一个节点是第一个，但是他还在搞事没有释放锁
+            //不管哪种情况这个时候我都需要park，park之前我需要把上一个节点的状态改成park状态
+            //这里比较难以理解为什么我需要去改变上一个节点的park状态呢？每个node都有一个状态，默认为0，表示无状态
+            //-1表示在park；当时不能自己把自己改成-1状态？为什么呢？因为你得确定你自己park了才是能改为-1；
+            //不然你自己改成自己为-1；但是改完之后你没有park那不就骗人？
+            //你对外宣布自己是单身状态，但是实际和刘宏斌私下约会；这有点坑人
+            //所以只能先park；在改状态；但是问题你自己都park了；完全释放CPU资源了，故而没有办法执行任何代码了，
+            //所以只能别人来改；故而可以看到每次都是自己的后一个节点把自己改成-1状态
+            //关于shouldParkAfterFailedAcquire这个方法的源码下次博客继续讲吧
+            if (shouldParkAfterFailedAcquire(p, node) &&
+                //改上一个节点的状态成功之后；自己park；到此加锁过程说完了
+                parkAndCheckInterrupt())
+                interrupted = true;
+        }
+    } finally {
+        if (failed)
+            cancelAcquire(node);
+    }
+}
+
+public final void acquire(int arg) {
+    if (!tryAcquire(arg) &&
+        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+        selfInterrupt();
+}
+*/
