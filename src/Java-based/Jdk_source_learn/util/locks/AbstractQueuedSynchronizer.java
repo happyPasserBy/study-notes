@@ -591,6 +591,7 @@ public abstract class AbstractQueuedSynchronizer
      * @param arg the acquire argument
      */
     private void doAcquireShared(int arg) {
+        // 设置共享添加至队列
         final Node node = addWaiter(Node.SHARED);
         boolean failed = true;
         try {
@@ -1100,6 +1101,7 @@ public abstract class AbstractQueuedSynchronizer
      * is not the first queued thread.  Used only as a heuristic in
      * ReentrantReadWriteLock.
      */
+     // 判断队列中第二个元素是否为写锁(独占)，此方法用于判断获取读锁时是否可以插队 
     final boolean apparentlyFirstQueuedIsExclusive() {
         Node h, s;
         return (h = head) != null &&
@@ -1911,6 +1913,8 @@ public abstract class AbstractQueuedSynchronizer
     }
 }
 /* 
+1. https://blog.csdn.net/lsgqjh/article/details/63685058
+
 final boolean acquireQueued(final Node node, int arg) {//这里的node 就是当前线程封装的那个node 下文叫做nc
     //记住标志很重要
     boolean failed = true;

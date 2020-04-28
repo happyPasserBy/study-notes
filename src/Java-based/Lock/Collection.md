@@ -87,8 +87,8 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
 * 并发采用分段锁的形式(segment)，每个Segment都使用ReentrantLock加锁，默认有16个Segment,只有可以初始化可以变更。
 ## 2. CopyOnWriteArrayList
 > 数组类型的并发容器，保证了高效的读操作，在读读与读写时均不会阻塞，为了保证读的效率CopyOnWriteArrayList在写操作时将原始数据拷贝出来，在操作完拷贝数据后将CopyOnWriteArrayList的数据指针指向拷贝数据放弃原始数据，换句话说就是在写的操作发生时CopyOnWriteArrayList会维护两份数据，一份用于读一份用于写。
-## 2.1 源码解析
-### 2.1.1 add操作
+### 2.1 源码解析
+#### 2.1.1 add操作
 ```
 public boolean add(E e) {
     // 加锁
@@ -110,7 +110,7 @@ public boolean add(E e) {
     }
 }
 ```
-### 2.1.3 get操作
+#### 2.1.3 get操作
 ```
 private E get(Object[] a, int index) {
     // 直接下标访问并返回
@@ -118,7 +118,7 @@ private E get(Object[] a, int index) {
 }
 
 ```
-### 2.3 缺点
+### 2.2 缺点
 * 只能保证数据的最终一致性，无法保证实时一致性。
 * 内存占用过多，在写入时复制就会导致占用过大内存。
 ## 3. 并发队列

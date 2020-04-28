@@ -152,6 +152,7 @@ public class ReentrantReadWriteLock
             return free;
         }
 
+        // 获取写锁时调用此方法
         protected final boolean tryAcquire(int acquires) {
             /*
              * Walkthrough:
@@ -167,8 +168,9 @@ public class ReentrantReadWriteLock
             Thread current = Thread.currentThread();
             int c = getState();
             int w = exclusiveCount(c);
+            // 读锁不为0
             if (c != 0) {
-                // (Note: if c != 0 and w == 0 then shared count != 0)
+                // 写锁为0(读写互斥) 或 当前不是持锁线程(写锁可以降级为读锁，所以出现读写都不为0)
                 if (w == 0 || current != getExclusiveOwnerThread())
                     return false;
                 if (w + exclusiveCount(acquires) > MAX_COUNT)
@@ -177,6 +179,11 @@ public class ReentrantReadWriteLock
                 setState(c + acquires);
                 return true;
             }
+            /**
+            writerShouldBlock 
+            公平：判断队列中是否有排队节点
+            非公平：无需阻塞
+            */
             if (writerShouldBlock() ||
                 !compareAndSetState(c, c + acquires))
                 return false;
@@ -220,37 +227,31 @@ public class ReentrantReadWriteLock
                 "attempt to unlock read lock, not locked by current thread");
         }
 
+        // 尝试获取共享锁 
         protected final int tryAcquireShared(int unused) {
-            /*
-             * Walkthrough:
-             * 1. If write lock held by another thread, fail.
-             * 2. Otherwise, this thread is eligible for
-             *    lock wrt state, so ask if it should block
-             *    because of queue policy. If not, try
-             *    to grant by CASing state and updating count.
-             *    Note that step does not check for reentrant
-             *    acquires, which is postponed to full version
-             *    to avoid having to check hold count in
-             *    the more typical non-reentrant case.
-             * 3. If step 2 fails either because thread
-             *    apparently not eligible or CAS fails or count
-             *    saturated, chain to version with full retry loop.
-             */
+
             Thread current = Thread.currentThread();
             int c = getState();
+            // 写锁被持有且持锁线程不是当前线程
             if (exclusiveCount(c) != 0 &&
                 getExclusiveOwnerThread() != current)
                 return -1;
             int r = sharedCount(c);
+            /*
+            readerShouldBlock
+            公平: 队列中是否有元素增在排队
+            非公平：队列中第二个元素是否为独占锁，是则排队，不是则可以插队
+            */
             if (!readerShouldBlock() &&
                 r < MAX_COUNT &&
                 compareAndSetState(c, c + SHARED_UNIT)) {
+                // 没有线程持有读锁
                 if (r == 0) {
                     firstReader = current;
                     firstReaderHoldCount = 1;
-                } else if (firstReader == current) {
+                } else if (firstReader == current) {// 可重入
                     firstReaderHoldCount++;
-                } else {
+                } else { // 
                     HoldCounter rh = cachedHoldCounter;
                     if (rh == null || rh.tid != getThreadId(current))
                         cachedHoldCounter = rh = readHolds.get();
@@ -268,16 +269,13 @@ public class ReentrantReadWriteLock
          * and reentrant reads not dealt with in tryAcquireShared.
          */
         final int fullTryAcquireShared(Thread current) {
-            /*
-             * This code is in part redundant with that in
-             * tryAcquireShared but is simpler overall by not
-             * complicating tryAcquireShared with interactions between
-             * retries and lazily reading hold counts.
-             */
+
             HoldCounter rh = null;
             for (;;) {
                 int c = getState();
+                // 写锁被持有
                 if (exclusiveCount(c) != 0) {
+                    // 持锁线程不是当前线程
                     if (getExclusiveOwnerThread() != current)
                         return -1;
                     // else we hold the exclusive lock; blocking here
@@ -1281,3 +1279,6 @@ public class ReentrantReadWriteLock
     }
 
 }
+/*
+1. https://blog.csdn.net/fxkcsdn/article/details/82217760
+*/
