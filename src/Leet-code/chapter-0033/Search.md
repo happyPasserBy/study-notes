@@ -12,7 +12,7 @@
 输出: 4
 ```
 ## 1. 解题思路一 二分查找
-> [来源于leetcode高赞](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/sou-suo-xuan-zhuan-pai-xu-shu-zu-by-leetcode-solut/)
+> 创建两个指针begin与end,begin执行起始下标，end指向结束下标，使用二分查找找到中间下标middle,根据begin、end、middle这三个位置上元素的大小关系来确定是否有序或旋转，如果有序则判断target是否在有序范围中，在就缩小范围至有序中查询，不在同样可以缩小范围，这样就可以不断缩减范围直到结束。[来源于leetcode官方](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/sou-suo-xuan-zhuan-pai-xu-shu-zu-by-leetcode-solut/)
 ### 1.2 具体实现
 ```
 public class Chapter {
