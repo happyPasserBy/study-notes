@@ -14,21 +14,17 @@ public abstract class AbstractQueuedSynchronizer
     protected AbstractQueuedSynchronizer() { }
     // 内部队列的元素，内部队列其实是一个双向链表
     static final class Node {
-        /** Marker to indicate a node is waiting in shared mode */
+        // 共享模式
         static final Node SHARED = new Node();
-        /** Marker to indicate a node is waiting in exclusive mode */
+        // 独占模式
         static final Node EXCLUSIVE = null;
-
-        /** waitStatus value to indicate thread has cancelled */
+        // 取消等待
         static final int CANCELLED =  1;
-        /** waitStatus value to indicate successor's thread needs unparking */
+        // 表示后续的元素需要被唤醒
         static final int SIGNAL    = -1;
-        /** waitStatus value to indicate thread is waiting on condition */
+        // 正在等待condition，condition.signal()执行后将进入同步队列
         static final int CONDITION = -2;
-        /**
-         * waitStatus value to indicate the next acquireShared should
-         * unconditionally propagate
-         */
+        // 唤醒后继所有节点
         static final int PROPAGATE = -3;
 
         /**
