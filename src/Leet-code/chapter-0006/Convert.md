@@ -59,10 +59,10 @@ public class Chapter {
                 row == list.size()-1 说明是最后一行，需要向上移动
             */
             if( row == 0 || row == list.size()-1) direction = row == 0 ?  true : false;
-            // 3. 根据direction来移动行
+            // (3). 根据direction来移动行
             row += direction ? 1 : -1;
         }
-
+        // 根据题意拼接返回值
         StringBuilder res = new StringBuilder();
         for (StringBuilder stringBuilder : list) {
             res.append(stringBuilder);

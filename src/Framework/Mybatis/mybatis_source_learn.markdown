@@ -34,6 +34,10 @@
 * LogFactory
 ## 2.7 组合模式
 * SqlNode&SqlSource 
+## 2.7 策略模式
+* DefaultSqlSession
+## 2.8 责任链
+* plugin
 ## 3. Mybatis的三层家架构
 ### 3.1 基础支持层
 > 用于支撑核心处理层，本层包括数据源模块、事物管理模块、缓存模块、日志模块、解析器模块等等
