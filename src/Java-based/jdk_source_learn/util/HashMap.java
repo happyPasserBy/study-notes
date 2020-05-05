@@ -147,6 +147,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * Returns k.compareTo(x) if x matches kc (k's screened comparable
      * class), else 0.
      */
+     // 如果类型相同则返回compareTo的结果否则返回0
     @SuppressWarnings({"rawtypes","unchecked"}) // for cast to Comparable
     static int compareComparables(Class<?> kc, Object k, Object x) {
         return (x == null || x.getClass() != kc ? 0 :
@@ -576,7 +577,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     final void treeifyBin(Node<K,V>[] tab, int hash) {
         int n, index; Node<K,V> e;
-        // 如果容器长度小于64s则无须树化，直接扩容即可
+        // 如果容器长度小于64则无须树化，直接扩容即可
         if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
             resize();
         else if ((e = tab[index = (n - 1) & hash]) != null) {
@@ -586,13 +587,15 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                 // 创建红黑树节点
                 TreeNode<K,V> p = replacementTreeNode(e, null);
                 if (tl == null)
-                    hd = p;
-                else {
+                    hd = p; // 首次
+                else {// 双向链表
                     p.prev = tl;
                     tl.next = p;
                 }
+                // 尾指针
                 tl = p;
             } while ((e = e.next) != null);
+            // 树化
             if ((tab[index] = hd) != null)
                 hd.treeify(tab);
         }
@@ -1711,13 +1714,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
             return ((parent != null) ? root() : this).find(h, k, null);
         }
 
-        /**
-         * Tie-breaking utility for ordering insertions when equal
-         * hashCodes and non-comparable. We don't require a total
-         * order, just a consistent insertion rule to maintain
-         * equivalence across rebalancings. Tie-breaking further than
-         * necessary simplifies testing a bit.
-         */
+        // 比较两个对象返回1或-1，先根据名字判断，如果为0在根据本地hash函数比较，如果相同返回-1否则1
         static int tieBreakOrder(Object a, Object b) {
             int d;
             if (a == null || b == null ||
@@ -1735,10 +1732,11 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         final void treeify(Node<K,V>[] tab) {
             // 根节点
             TreeNode<K,V> root = null;
+            // 从当前节点开始循环所有节点创建红黑树
             for (TreeNode<K,V> x = this, next; x != null; x = next) {
                 next = (TreeNode<K,V>)x.next;
                 x.left = x.right = null;
-                if (root == null) {
+                if (root == null) { // 根节点
                     x.parent = null;
                     x.red = false;
                     root = x;
@@ -1750,7 +1748,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                     int h = x.hash;
                     Class<?> kc = null;
                     for (TreeNode<K,V> p = root;;) {
-                        int dir, ph;
+                        // 代表存储路径
+                        int dir,
+                        ph;
                         K pk = p.key;
 
                         // 整个if代码块用来判断存储到左节点还是右节点
@@ -2149,20 +2149,24 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                                                     TreeNode<K,V> x) {
             x.red = true;
             for (TreeNode<K,V> xp, xpp, xppl, xppr;;) {
-                if ((xp = x.parent) == null) {// 如果是根节点
+                // 父节点是空说明是是根节点
+                if ((xp = x.parent) == null) {
                     x.red = false;
                     return x;
                 }
-                else if (!xp.red || (xpp = xp.parent) == null) // 如果父节点是黑色或父节点是根节点，为什么是黑色可以直接返回？
+                // 如果父节点是黑色或爷爷节点是空 
+                else if (!xp.red || (xpp = xp.parent) == null) 
                     return root;
+                // 父节点是爷爷的左孩子
                 if (xp == (xppl = xpp.left)) {
+                    // 爷爷节点的右孩子不为空且是红节点
                     if ((xppr = xpp.right) != null && xppr.red) {
                         xppr.red = false;
                         xp.red = false;
                         xpp.red = true;
                         x = xpp;
                     }
-                    else {
+                    else {// 爷爷节点的右孩子是空或是黑节点
                         if (x == xp.right) {
                             root = rotateLeft(root, x = xp);
                             xpp = (xp = x.parent) == null ? null : xp.parent;
@@ -2176,7 +2180,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                         }
                     }
                 }
+                // 父节点是爷爷的右孩子
                 else {
+                    // 爷爷的左孩子不为空且是红节点
                     if (xppl != null && xppl.red) {
                         xppl.red = false;
                         xp.red = false;
@@ -2184,6 +2190,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                         x = xpp;
                     }
                     else {
+                        // 爷爷的左孩子为空或是黑节点
                         if (x == xp.left) {
                             root = rotateRight(root, x = xp);
                             xpp = (xp = x.parent) == null ? null : xp.parent;
@@ -2319,3 +2326,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
 }
+/*
+参考 
+1. https://blog.csdn.net/weixin_42340670/article/details/80550932
+*/
