@@ -2065,24 +2065,22 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                 return x;
             } 
             // 进入else说明不是根节点。
-            // 如果父节点是黑色，那么大吉大利（今晚吃鸡），红色的x节点可以直接添加到黑色节点后面，返回根就行了不需要任何多余的操作。
-            // 如果父节点是红色的，但祖父节点为空的话也可以直接返回根此时父节点就是根节点，因为根必须是黑色的，添加在后面没有任何问题。
+            // 如果父节点是黑色，红色的x节点可以直接添加到黑色节点后面，返回根就行了不需要任何多余的操作
+            // 如果父节点是红色的，但祖父节点为空的话也可以直接返回根此时父节点就是根节点，因为根必须是黑色的，添加在后面没有任何问题
             else if (!xp.red || (xpp = xp.parent) == null)
                 return root;
             
             // 一旦我们进入到这里就说明了两件是情
-            // 1.x的父节点xp是红色的，这样就遇到两个红色节点相连的问题，所以必须经过旋转变换。
+            // 1.x的父节点xp是红色的，这样就遇到两个红色节点相连的问题，所以必须经过旋转变换
             // 2.x的祖父节点xpp不为空。
             
             // 判断如果父节点是否是祖父节点的左节点
             if (xp == (xppl = xpp.left))
             {
-                // 父节点xp是祖父的左节点xppr
+                // 父节点xp是祖父的左节点xppl
                 // 判断祖父节点的右节点不为空并且是否是红色的
-                // 此时xpp的左右节点都是红的，所以直接进行上面所说的第三种变换，将两个子节点变成黑色，将xpp变成红色，然后将红色节点x顺利的添加到了xp的后面。
-                // 这里大家有疑问为什么将x = xpp？
-                // 这是由于将xpp变成红色以后可能与xpp的父节点发生两个相连红色节点的冲突，这就又构成了第二种旋转变换，所以必须从底向上的进行变换，直到根。
-                // 所以令x = xpp，然后进行下下一层循环，接着往上走。
+                // 此时xpp的左右节点都是红的，将两个子节点变成黑色，将xpp变成红色，然后将红色节点x顺利的添加到了xp的后面
+                // 将x = xpp，进行下一次循环
                 if ((xppr = xpp.right) != null && xppr.red)
                 {
                     xppr.red = false;
@@ -2115,7 +2113,6 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                     }
                 }
             } 
-            // 这里的分析方式和前面的相对称只不过全部在右测不再重复分析。
             else
             {
                 if (xppl != null && xppl.red)
@@ -2159,7 +2156,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                     return root;
                 // 父节点是爷爷的左孩子
                 if (xp == (xppl = xpp.left)) {
-                    // 爷爷节点的右孩子不为空且是红节点
+                    /*  爷爷节点的右孩子不为空且是红节点
+                        进行颜色翻转，爷爷节点改为红色，
+                        爷爷节点的左右孩子改为黑色
+                    */
                     if ((xppr = xpp.right) != null && xppr.red) {
                         xppr.red = false;
                         xp.red = false;
@@ -2167,13 +2167,19 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                         x = xpp;
                     }
                     else {// 爷爷节点的右孩子是空或是黑节点
+                        
+                        // 如果当前节点是父节点的右孩子则左旋转
                         if (x == xp.right) {
                             root = rotateLeft(root, x = xp);
+                            // 旋转后重新赋值
                             xpp = (xp = x.parent) == null ? null : xp.parent;
                         }
+                        // 父节点不为空 
                         if (xp != null) {
                             xp.red = false;
+                            // 爷爷节点不为空
                             if (xpp != null) {
+                                // 
                                 xpp.red = true;
                                 root = rotateRight(root, xpp);
                             }
@@ -2329,4 +2335,6 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 /*
 参考 
 1. https://blog.csdn.net/weixin_42340670/article/details/80550932
+2. https://zhuanlan.zhihu.com/p/91960960
+3. https://zhuanlan.zhihu.com/p/86142252
 */
