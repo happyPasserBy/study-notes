@@ -44,8 +44,6 @@
     * 避免内存的不连续性
     * 不用设置两块内存互换
     * 适用于存活率高的场景
-3. 缺点
-    * ？？？？？
 > 分代收集算法
 1. 将内存堆的内存空间分为年轻代与老年代,按照对象的存活时间将其存放在不同的内存区域中
 2. 年轻代
@@ -82,11 +80,29 @@
             * 调用System.gc() (调用后不会立刻触发GC，而是在此处标记，告诉虚拟机这里需要GC)
             * 使用RMI来进行RPC或管理的JDK应用，每小时执行一次Full GC
     * Stop the world
-        1. 定义: JVM执行GC而停止应用程序的执行，任何一种GC算法都会发生Stop the world，而介绍Stop the World是GC优化的重要手段
-    * 垃圾收集器（记不住啦！)      
+        1. 定义: JVM执行GC而停止应用程序的执行，任何一种GC算法都会发生Stop the world，而减少Stop the World是GC优化的重要手段
+    * 垃圾收集器
+        1. Serial收集器(-XX:UseSerialGC,复制算法，用于年轻代,单线程收集)
+        2. ParNew收集器(-XX:UseParNewGC,复制算法，用于年轻代，多线程收集)
+        3. Parallel Scaveng收集器(-XX:UseParallelGC,复制算法，用于年轻代，多线程收集且更关注系统吞吐量)
+        4. Serial Old收集器(-XX:UseSerialOldGC,标记-整理算法，用于老年代)
+        5. Parallel Old收集器(-XX:UseParallelOldGC,标记-整理算法，用于老年代)
+        5. CMS收集器(-XX:UseConcMarkSweepGC,标记-清除算法，用于老年代)
+            * 标记初始化: stop the world
+            * 并发标记: 并发追溯标记，程序不会停止
+            * 并发预处理: 查找执行并发标记阶段从年轻代到老年代的对象
+            * 重新标记: 暂停虚拟机，扫描CMS堆中的剩余对象
+            * 并发清理: 清理垃圾对象，程序不会停顿
+            * 并发重置：重置CMS收集器的数据结构
+        6. G1收集器：(-XX:UseG1 复制+标记整理算法)
+            * 可以并行并发，分代收集，空间整合，可预测停顿。
+            * G1将Java堆内存划分成多个大小相同的的Region,
+            * 年轻代与老年代不在屋里隔离，
+
     
 ## 参考链接
-1. https://coding.imooc.com/class/303.html      
+1. https://coding.imooc.com/class/303.html
+2. https://www.cnblogs.com/ASPNET2008/p/6496481.html
 
 
 
