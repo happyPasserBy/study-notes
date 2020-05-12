@@ -165,7 +165,7 @@ OK
 > Redis需要主从同步的原因与Mysql类似，读写分离提高并发量，防止单台Redis挂掉导致数据丢失等问题,
 Redis的主从同步一般有单个Master与多个Slave组成，Master负责写，Slave负责读
 ### 6.1 全同步过程
-* Slave发送sync命令到Master
+* Slave发送psync命令到Master
 * Master启动一个后台进程用于将Redis的数据快照保存到文件中
 * Master将保存数据快照期间接受到的写命令缓存起来
 * Master的数据快照生成完毕后发送给Slave
@@ -175,9 +175,21 @@ Redis的主从同步一般有单个Master与多个Slave组成，Master负责写�
 * Master接受到用户指令后判断是否需要传播到Slave
 * Master将操作记录追加AOF文件
 * Master首先确定Slave，然后将指令写入到响应缓存中并发送给Slave
-
-
+### 6.3 全同步开销
+* BGSAVE时间
+* RDB传输时间
+* 从节点清空数据时间
+* 从节点加载RDB时间
+* AOF重写时间
+## 7 内存淘汰策略
+* noeviction：当内存不足以容纳新写入数据时，新写入操作会报错
+* allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的key
+* allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个key
+* volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的key
+* volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个key
+* volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的key优先移除
 ## 参考
 1. https://segmentfault.com/a/1190000016837791#articleHeader4
 2. http://try.redis.io/
 3. https://coding.imooc.com/class/303.html
+4. https://www.jb51.net/article/156147.htm
