@@ -22,7 +22,7 @@ typedef struct redisObject{
 ### 1.1 String
 > 字符串，最基本的数据类型，底层采用SDS来存储。SDS获取长度是O(n)的时间复杂度，redis在修改字符串时会对SDS自动扩容，防止了数据溢出，在修改时采用预分配内存和惰性释放空间的方式减少SDS内存的分配次数
 ### 1.2 Hash
-> String作为key组成的hash表。底层使用ahsh表或压缩表作为数据结构。当发生hash冲突时使用拉链法解决冲突。
+> String作为key组成的hash表。底层使用hash表或压缩表作为数据结构。当发生hash冲突时使用拉链法解决冲突。
 #### 1.2.1 编码转换规则 
 > 当同时满足下面两个条件时，使用ziplist（压缩列表）编码：
 * 列表保存元素个数小于512个
@@ -48,7 +48,8 @@ typedef struct redisObject{
 * 保存的所有元素长度都小于64字节
 
 ## 2.缓存与数据库一致性
-
+[链接](https://www.cnblogs.com/rjzheng/p/9041659.html)
+[链接](https://juejin.im/post/5d7c7a14f265da03f47c4f93#heading-2)
 ## 3. redis 集群
 > 解决了单机QPS与内存不足的问题
 ### 3.1 数据分区
