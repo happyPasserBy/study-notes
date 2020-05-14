@@ -6,6 +6,7 @@
 > 查询快的常用数据结构非二叉树莫属，二叉树的查找速度为O(logn),相当于二分查找,但二叉树也有它短板，当我们插入的数据为[1,2,3,4,5]时，
 它的查询速度为O(n)相当于挨个遍历，对于数据库存储的场景，每次查询数据为一次IO,而IO操作是耗费系统资源的，如果使用二叉树来存储数据，则最坏的情况是IO的次数等于树的高度，而对于现在的数据存储情况
 小则几百MB大则几十G，树的高度可想而知，进而我们引入B树，B树就是为磁盘或其它存储设备快速获取与存放数据而来
+
 2. 什么是B树
 > B树大家多叫它B-Tree，针对于磁盘存储优化而生的多路平衡查找树
 
@@ -70,10 +71,8 @@ create unique index `tname` on tb_text(`name`)
 //删除索引
 alter table `tb_text` drop index tname
 ```
-
-
-
 .....未完待续
 ## 参考链接
 1. https://www.zhihu.com/people/xiao-hui-68-47/posts?page=2
 2. https://coding.imooc.com/learn/list/303.html
+1. [掘金小册](https://juejin.im/book/5bffcbc9f265da614b11b731)

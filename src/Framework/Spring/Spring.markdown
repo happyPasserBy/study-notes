@@ -27,6 +27,11 @@
     * request: request定义的Bean将为每次HTTP请求生成新的Bean实例
     * session: request定义的Bean每次调用都为每个Http Session返回一个Bean实例
     * global session: ???????
+5. 依赖注入的方式
+    * 构造注入
+    * Setter注入
+    * Interface
+    * Annotation
 ## SpringAOP
 1. 定义: 面向切面编程
     * 项目中出现重复的非业务代码，如日志记录，权限校验，为了避免耦合与重复通常采用两种方式解决，纵向继承，横向切割
