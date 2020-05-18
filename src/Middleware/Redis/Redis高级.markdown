@@ -87,10 +87,6 @@ typedef struct redisObject{
 5. 节点接收到数据，验证是否在自己管理的槽编号的范围
     如果在自己管理的槽编号范围内，则把数据保存到数据槽中，然后返回执行结果
     如果在自己管理的槽编号范围外，则会把数据发送给正确的节点，由正确的节点来把数据保存在对应的槽中
- 
-
-
-
 ## 参考
 1. https://juejin.im/post/5d7c7a14f265da03f47c4f93#heading-2
 2. (底层数据结构)[https://www.cnblogs.com/MouseDong/p/11134039.html]
