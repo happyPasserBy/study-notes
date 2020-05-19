@@ -90,7 +90,7 @@
     * PROPAGATION_NESTED: 嵌回套事务，如果A中有事务，执行A的操作，执行完毕后设置一个保存点，创建新的事务只包含B本身的操作，如果执行
         完毕没有异常则结束，如果有异常则可以选择回滚到初始位置或者回滚到保存点
 ## SpringMVC
-![](./springmvc.png)
+![](./images/springmvc.png)
 ## 参考
 1. https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247483942&idx=1&sn=f71e1adeeaea3430dd989ef47cf9a0b3&chksm=ebd74327dca0ca3141c8636e95d41629843d2623d82be799cf72701fb02a665763140b480aec#rd
 2. https://segmentfault.com/a/1190000015018888

@@ -34,9 +34,9 @@ typedef struct redisObject{
 * 列表保存元素个数小于512个
 * 每个元素长度小于64字节
 ### 1.4 Set
-> String元素组成的无序集合，不允许重复
+> String元素组成的无序集合，不允许重复,使用intset与hash实现
 #### 1.4.1 编码转换规则
-> 当有序集合对象同时满足以下两个条件时，对象使用 ziplist 编码：
+> 当有序集合对象同时满足以下两个条件时，对象使用 hash 编码：
 * 集合对象中所有元素都是整数
 * 列表保存元素个数小于512个
 ### 1.5 Sorted Set
@@ -89,5 +89,5 @@ typedef struct redisObject{
     如果在自己管理的槽编号范围外，则会把数据发送给正确的节点，由正确的节点来把数据保存在对应的槽中
 ## 参考
 1. https://juejin.im/post/5d7c7a14f265da03f47c4f93#heading-2
-2. (底层数据结构)[https://www.cnblogs.com/MouseDong/p/11134039.html]
+2. [底层数据结构](https://www.cnblogs.com/MouseDong/p/11134039.html)
 3. https://www.cnblogs.com/ysocean/p/9102811.html#_label1
