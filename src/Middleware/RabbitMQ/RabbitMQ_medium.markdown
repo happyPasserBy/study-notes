@@ -2,7 +2,7 @@
 > 讲述RabbitMQ如何保证消息可靠性
 ## 可靠性
 ### 1.1 可靠性保障——Confirm
-> 生产者发送消息到MQ后，MQ会对这条消息进行应答
+> 生产者发送消息到MQ后。MQ会对这条消息进行应答，当开启Confirm模式，Producer发送的消息当到达指定队列时Server端会返回ack来通知Producer，设置了消息持久化则会在持久化完毕之后发送ack,如果Server发生异常则返回nack来通知Producer消息发送失败。
 ```
 // Producer
 //1 创建ConnectionFactory
@@ -33,6 +33,7 @@ channel.addConfirmListener(new ConfirmListener() {
     }
 });
 ```
+> Customer的Confirm模式可以分为两种，第一是自动确认，自动确认是消息一旦发送就被认为发送成功，第二种是手动确认，手动确认需要Customer端调用指定的方法来通知Server端是否消费成功、消费失败是否重新入队。
 ```
 // Customer
 //1 创建ConnectionFactory

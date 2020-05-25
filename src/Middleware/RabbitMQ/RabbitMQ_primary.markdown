@@ -7,7 +7,7 @@
 * Connection: 连接，应用程序与Broker的网络连接
 * Channel: 网络信道，Channel是进行读写的通道，客户端可以建立多个Channel，每个Channel代表一个会话任务
 * Message: 消息，服务器与应用程序传递的数据，由Properties和Body组成，Properties用来描述消息，Body是具体的消息内容
-* Virtual host: .....
+* Virtual host: 对server进行逻辑隔离，一个Server可以包含多个Virtual host，Virtual host中可以包含多个Exchange与Queue，每个Virtual host可以做到权限独立
 * Exchange: 交换机，接收消息根据路由键转发消息到队列
 * Binding: Exchange和Queue之间的虚拟连接，Binding中可以包含Routing key,换句话说，Exchange接受到一个消息，根据消息的RoutingKey去匹配自身的BindingKey从而选择Queue
 * Routing key: 一个路由规则，虚拟机可以用它来确定如何路由一个消息
@@ -56,7 +56,7 @@ spring:
 * Internal: 当前Exchange是否用于RabbitMQ内部使用，默认为false
 * Arguments: 扩展参数，用于扩展AMQP协议时使用
 #### 1.4.2 Direct Exchange
-> 发送到DirectExchange的消息，根据消息的RoutingKey与BindingKey进行匹配然后传递到Queue中
+> 发送到DirectExchange的消息，根据消息的RoutingKey与BindingKey进行匹配然后传递到Queue中(点对点)
 
 ![](rabbitmq_4.png)
 
@@ -115,7 +115,7 @@ while(true){
 } 
 ```
 #### 1.4.3 Topic Exchange
-> 与Direct Exchange相似，但Binding Key可以使用匹配符号
+> 与Direct Exchange相似，但Binding Key可以使用匹配符号(使用通配符完成订阅发布)
 
 ![](rabbitmq_3.png)
 ##### 1.4.3.1 匹配符号
@@ -180,7 +180,7 @@ while(true){
 } 
 ```
 ### 1.4.4 Fanout Exchange
-> 此模式的交换机不需要路由键，队列与交换机存在绑定关系，交换机接收到消息后会被转发到与该交换机绑定的所有队列上
+> 此模式的交换机不需要路由键，队列与交换机存在绑定关系，交换机接收到消息后会被转发到与该交换机绑定的所有队列上(订阅发布/扇形发布)
 ![](rabbitmq_5.png)
 ```
 // Producer
@@ -233,17 +233,17 @@ while(true){
 } 
 ```
 #### 1.4.5 Headers Exchange
-......
+> 与topic相似，根据消息头判断队列
 
 ## 2. RabbitMQ的一些高级特性
 ### 2.1消费端限流
-> RabbitMQ提供了一种qos功能，即在非自动确认消息的前提下，如果一定数据的消息未被确认前，不消费新的消息
+> RabbitMQ提供了一种qos功能，即在非自动确认消息的前提下，如果一定数据的消息未被确认前，不消费新的消息，话句话说就是确定了消费端同时可以处理多少条消息，当超过设置的消息时MQ将停止推送。
 #### 2.1.1 void BasicQos(unit perfetchSize,ushort prefetchCount,bool global)
 * unit perfetchSize: 限制消息的大小(MB)
 * ushort prefetchCount: 一次能处理多少条消息
 * global: true限制于channel,false限制于consumer
 ### 2.2 TTL
-> 消息的存活时间
+> 消息的存活时间，RabbitMQ支持对每条消息或队列设置超时时间，每条消息设置后，当超时后将进入死信队列，队列设置了超时时间，从消息进入队列开始计时，超时后进入死信队列
 ### 2.3 死信队列(DLX)
 > 当一个消息在一个队列中变成死信后，它能被重新publish到另一个Exchange并路由到对应的Queue中
 #### 2.3.1 消息变成死信的情况
