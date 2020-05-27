@@ -4,7 +4,7 @@
     层层手动创建，层层依赖。而采用IOC就可以将每层的new操作交给IOC容器去做，只要编写相应的配置并告诉它我需要什么就可以达到之前的功能，
     并且层层解耦，在直白点就是将对象的创建控制权交由之前的自己改为(反转)IOC容器，这就是控制反转
 2. DI定义: 依赖注入(Dependency Injection)，将当前所需要的对象自动加载进来
-4. SpringIOC核心接口
+3. SpringIOC核心接口
     * BeanFactory
         * 提供IOC的配置机制
         * 包含Bean的各种定义，便于实例化Bean
@@ -16,22 +16,28 @@
         * MessageSource实现国际化等功能
         * ApplicationEventPublisher 能够注册监听器，实现监听机制
         
-3. Spring启动对Bean的操作
+4. Spring启动对Bean的操作
     * Spring启动时加载Bean的配置文件并在Bean的注册表中注册
     * 根据Bean的注册表实例化Bean
     * 将实例化好的Bean放入Bean缓存池
     * 使用Bean
-4. Bean的作用域
+5. Bean的作用域
     * singleton: singleton定义的Bean是单例模式，默认作用域
     * prototype: prototype定义的Bean每次getBean返回的都是Bean的新实例
     * request: request定义的Bean将为每次HTTP请求生成新的Bean实例
     * session: request定义的Bean每次调用都为每个Http Session返回一个Bean实例
     * global session: ???????
-5. 依赖注入的方式
+6. 依赖注入的方式
     * 构造注入
     * Setter注入
     * Interface
     * Annotation
+7. Bean的生命周期
+    * 如果实现了*Aware接口，就调用相应的方法
+    * 如果有和加载这个Bean的Spring容器相关的BeanPostProcessor对象，执行postProcessBeforeInitialization()方法
+    * 如果Bean在配置文件中的定义包含init-method属性，执行指定的方法
+    * 如果有和加载这个Bean的Spring容器相关的BeanPostProcessor对象，执行postProcessAfterInitialization()方法
+    * 当要销毁Bean的时候，如果Bean在配置文件中的定义包含destroy-method属性，执行指定的方法
 ## SpringAOP
 1. 定义: 面向切面编程
     * 项目中出现重复的非业务代码，如日志记录，权限校验，为了避免耦合与重复通常采用两种方式解决，纵向继承，横向切割
@@ -96,4 +102,5 @@
 2. https://segmentfault.com/a/1190000015018888
 3. http://yiidian.com/spring/aop-terminology.html
 4. https://juejin.im/post/5a3b1dc4f265da43333e9049#comment
-5. https://juejin.im/post/5c88ac835188257e3e4800bb
+5. [SpringMVC工作流程](https://juejin.im/post/5c88ac835188257e3e4800bb)
+6. [Bean的生命周期](https://yemengying.com/2016/07/14/spring-bean-life-cycle/)
