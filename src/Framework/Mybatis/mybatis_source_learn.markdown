@@ -14,11 +14,9 @@
 * XMLMapperBuilder: Mapper的XML解析对象
 ## 2. 设计模式
 ## 2.1 代理模式
-> 
+* MapperProxy
+> Dao接口的代理对象
 ## 2.2 建造者模式
-* SqlSessionFactory
-* DefaultReflectorFactory
-> 创建Reflector
 * MappedStatement.Builder
 > 创建MappedStatement
 * BaseBuild
@@ -27,7 +25,9 @@
 * Cache
 > ScheduledCache、LoggingCache等
 ## 2.4 单例模式
-
+* ErrorContext
+> 基于线程的单例
+* LogFactory
 ## 2.5 模板方法模式
 
 ## 2.6 适配器模式
@@ -38,6 +38,11 @@
 * DefaultSqlSession
 ## 2.8 责任链
 * plugin
+## 2.9 工厂模式
+* SqlSessionFactory
+> 创建SqlSession
+* DefaultReflectorFactory
+> 创建Reflector
 ## 3. Mybatis的三层家架构
 ### 3.1 基础支持层
 > 用于支撑核心处理层，本层包括数据源模块、事物管理模块、缓存模块、日志模块、解析器模块等等

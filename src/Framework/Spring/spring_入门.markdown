@@ -95,8 +95,20 @@
 3. 嵌套事务
     * PROPAGATION_NESTED: 嵌回套事务，如果A中有事务，执行A的操作，执行完毕后设置一个保存点，创建新的事务只包含B本身的操作，如果执行
         完毕没有异常则结束，如果有异常则可以选择回滚到初始位置或者回滚到保存点
+
+## Spring中的设计模式
+* 工厂模式：在Spring中，工厂的例子是org.springframework.beans.factory.BeanFactory。通过它的实现，我们可以从Spring的容器访问bean。根据采用的策略，getBean方法可以返回已创建的对象（共享实例，单例作用域）或初始化新的对象（原型作用域）。在BeanFactory的实现中，我们可以区分：ClassPathXmlApplicationContext，XmlWebApplicationContext，StaticWebApplicationContext，StaticPortletApplicationContext，GenericApplicationContext，StaticApplicationContext
+* 模版模式：在各种BeanFactory以及ApplicationContext实现中也都用到了
+* 代理模式：SpringAOP利用了AspectJAOP实现的，AspectJAOP的底层用了动态代理
+* 策略模式：加载资源文件的方式，使用了不同的方法，比如：ClassPathResourece，FileSystemResource，ServletContextResource，UrlResource但他们都有共同的借口Resource；在Aop的实现中，采用了两种不同的方式，JDK动态代理和CGLIB代理
+* 单例模式：比如在创建Bean的时候，Bean默认就是单例，在Spring中的getSingleton方法使用双重检查锁的方式创建单例
+* 观察者模式：Spring的事件驱动机制就是应用了观察者模式，ApplicationListener就是作为一个事件监听者的身份。
+* 适配器模式： 我们可以从关于Spring和JBoss的处理接口这里找到一个很好的例子，它包含在org.springframework.instrument.classloading.jboss包中。我们检索JBossLoadTimeWeaver类负责JBoss容器的编织管理。然而，类加载器对于JBoss 6（使用JBossMCAdapter实例）和JBoss 7/8（使用JBossModulesAdapter实例）是不同的。根据JBoss版本，我们在JBossLoadTimeWeaver构造函数中初始化相应的适配器（与我们示例中的Drill的构造函数完全相同）
+* 装饰器模式：org.springframework.http.client.reactive.ClientHttpRequestDecorator,ClientHttpRequestDecorator只是增强了它的返回值。
+
 ## SpringMVC
 ![](./images/springmvc.png)
+
 ## 参考
 1. https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247483942&idx=1&sn=f71e1adeeaea3430dd989ef47cf9a0b3&chksm=ebd74327dca0ca3141c8636e95d41629843d2623d82be799cf72701fb02a665763140b480aec#rd
 2. https://segmentfault.com/a/1190000015018888
