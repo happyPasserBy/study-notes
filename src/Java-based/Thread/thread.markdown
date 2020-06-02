@@ -273,11 +273,11 @@ public class NotificationDemo {
 1. 定义: Thread.yield暗示调度器当前线程可以让出资源，当不会对锁造成影响，yield方法只会给相同优先级或更高优先级的线程以运行的机会
 
 ## 参考
-1. http://www.ruanyifeng.com/blog/2013/04/processes_and_threads.html
+1. [进程与线程](http://www.ruanyifeng.com/blog/2013/04/processes_and_threads.html)
 2. https://coding.imooc.com/lesson/303.html#mid=21216
 3. http://silencedut.com/2016/06/25/%E4%BB%8E%E4%BD%BF%E7%94%A8%E5%88%B0%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/
-4. https://juejin.im/post/5bdf0667e51d450b267fe3e3#comment
-5. https://juejin.im/post/5965ef1ff265da6c40737292#comment
+4. [并行与并发](https://juejin.im/post/5bdf0667e51d450b267fe3e3#comment)
+5. [线程状态](https://juejin.im/post/5e208da16fb9a02fdd389934   )
 ## 遗留问题
 1.慕课-实战-java第八章第一小节
     * java是单线程模型？

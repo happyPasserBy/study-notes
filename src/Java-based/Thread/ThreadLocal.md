@@ -69,3 +69,5 @@ private void resize() {
 ### 3.2 NullPointerException
 > 如果在set之前进行get则get返回一个null，null很容易引发空指针，比如说基本类型的自动拆装箱等操作
 
+## 参考
+1. [ThreadLocal](https://juejin.im/post/5965ef1ff265da6c40737292#comment)

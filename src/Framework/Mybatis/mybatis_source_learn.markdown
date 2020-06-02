@@ -89,8 +89,8 @@
         2. 获取 MappedStatement 
         3. executor.query 执行
         4. 创建BoundSql
-        5. 判断是否命中二级缓存
-        6. 判断是否命中一级缓存
+        5. 判断是否命中一级缓存
+        6. 判断是否命中二级缓存
         7. 创建PreparedStatement执行sql 
     * BoundSql 的创建
         1. 创建 DynamicContext( Sql 语句构建的上下文)
