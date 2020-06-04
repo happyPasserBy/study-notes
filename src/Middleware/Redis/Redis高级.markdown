@@ -48,8 +48,35 @@ typedef struct redisObject{
 * 保存的所有元素长度都小于64字节
 
 ## 2.缓存与数据库一致性
-[链接](https://www.cnblogs.com/rjzheng/p/9041659.html)
-[链接](https://juejin.im/post/5d7c7a14f265da03f47c4f93#heading-2)
+## 2.1 更新还是删除缓存？
+> 答案是删除，原因有三
+* 存入的缓存并不一定是一个简单的值，而是经过复杂计算的，写入数据库后仍需要记录缓存是一种性能浪费
+* 更新的缓存可能并一定被用到，频繁的更新也是性能浪费
+* 脏数据
+```
+1.线程A更新了数据库
+2.线程B更新了数据库
+3.线程B更新了缓存
+4.线程A更新了缓存
+```
+## 2.2 先删除缓存还是后删除缓存
+### 2.2.1 先删除再更新数据库 
+```
+1.请求A进行写操作，删除缓存
+2.请求B查询发现缓存不存在
+3.请求B去数据库查询得到旧值
+4.请求B将旧值写入缓存
+5.请求A将新值写入数据库
+```
+### 2.2.2 先更新数据库再删除
+> 这种方式由Faceboot提出，它解决了先删除再更新数据库脏数据的问题，原因就是更新数据库的操作的时间一般大于查询操作的时间
+```
+1.请求A进行写操作
+2.请求B查询发现缓存不存在
+3.请求B去数据库查询得到旧值
+4.请求B将旧值写入缓存
+5.请求A删除缓存
+```
 ## 3. redis 集群
 > 解决了单机QPS与内存不足的问题
 ### 3.1 数据分区
@@ -91,3 +118,5 @@ typedef struct redisObject{
 1. https://juejin.im/post/5d7c7a14f265da03f47c4f93#heading-2
 2. [底层数据结构](https://www.cnblogs.com/MouseDong/p/11134039.html)
 3. https://www.cnblogs.com/ysocean/p/9102811.html#_label1
+4. [数据库双写一致性](https://www.cnblogs.com/rjzheng/p/9041659.html)
+5. [数据库双写一致性](https://juejin.im/post/5d7c7a14f265da03f47c4f93#heading-2)
