@@ -16,7 +16,7 @@ static final int tableSizeFor(int cap) {
 
 ### 1.1 为什么是2的n次幂
 * 效率高: 计算容器下标的操作就是key值 & 容器长度 取余的操作，但是使用&的操作效率高于%操作，而key.hashcode & (array.length - 1) = key.hashcode % array.length
-
+* 计算的hash分布更均匀[链接](https://www.sohu.com/a/275783730_100212268)
 * 扩容时方便定位: 当容器下标与hash & 的最高位结果为1时，当前元素下标 = 原下标 + 原容器长度，当最高位结果为0时，下标不变
 
 ```
@@ -116,7 +116,7 @@ int n = cap - 1;       -1是防止cap本就是2的n次幂，-1后经过后续计
 
 ## 2.根据hash计算下标
 > (h = key.hashCode()) ^ (h >>> 16) 主要是为了混淆高低位，一些相差较大的数组可能在二进制中出现高位不同但低位相同，而计算hashMap下标时会跟当前容器容量进行&操作，这样就会导致命名数字相差很大但计算出来的下标却一样，^ (h >>> 16)这个操作就是为了混淆高低位。具体请看参考第4条。
-```
+```java
 static final int hash(Object key) {
     int h;
     return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16); // 
@@ -125,7 +125,7 @@ static final int hash(Object key) {
 ```
 ## 3. 核心方法
 ### 3.1 map的put方法
-```
+```java
 final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
     // 底层容器
@@ -142,7 +142,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
     // 判断当前存储元素所对应的下标是否有元素，没有则继续存储
     if ((p = tab[i = (n - 1) & hash]) == null)
         tab[i] = newNode(hash, key, value, null);
-    else { // 计算出的下有元素
+    else { // 计算出的下标有元素
 
         Node<K,V> e;
 
@@ -200,7 +200,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 ```
 
 ### 3.2 map的resize方法
-```
+```java
 final Node<K,V>[] resize() {
         // 容器 
         Node<K,V>[] oldTab = table;
@@ -293,7 +293,7 @@ final Node<K,V>[] resize() {
 
 ### 3.3 map中的红黑树
 ### 3.3.1 将链表转为红黑树
-```
+```java
 final void treeifyBin(Node<K,V>[] tab, int hash) {
     int n, index; Node<K,V> e;
     // 如果容器长度小于64s则无须树化，直接扩容即可
@@ -319,7 +319,7 @@ final void treeifyBin(Node<K,V>[] tab, int hash) {
 }
 ```
 ### 3.3.2 创建红黑树
-```
+```java
 final void treeify(Node<K,V>[] tab) {
     // 根节点
     TreeNode<K,V> root = null;
@@ -372,7 +372,7 @@ final void treeify(Node<K,V>[] tab) {
 ```
 
 ### 3.3.3 保持平衡的左旋转
-```
+```java
 static <K,V> TreeNode<K,V> rotateLeft(TreeNode<K,V> root,
                                         TreeNode<K,V> p) {
     TreeNode<K,V> r, pp, rl;
@@ -392,7 +392,7 @@ static <K,V> TreeNode<K,V> rotateLeft(TreeNode<K,V> root,
 }
 ```
 ### 3.3.4 保持平衡的右旋转
-```
+```java
 static <K,V> TreeNode<K,V> rotateRight(TreeNode<K,V> root,
                                         TreeNode<K,V> p) {
     TreeNode<K,V> l, pp, lr;
@@ -412,7 +412,7 @@ static <K,V> TreeNode<K,V> rotateRight(TreeNode<K,V> root,
 }
 ```
 ### 3.3.5 插入时保持平衡
-```
+```java
 static <K,V> TreeNode<K,V> balanceInsertion(TreeNode<K,V> root,
                                                     TreeNode<K,V> x) {
     // 新插入的节点颜色为红色
@@ -482,9 +482,9 @@ static <K,V> TreeNode<K,V> balanceInsertion(TreeNode<K,V> root,
 
 
 ## 参考
-1. https://blog.csdn.net/huzhigenlaohu/article/details/51802457
-2. https://juejin.im/post/5d51884ee51d4561e0516ac9
-3. https://juejin.im/post/5d54300151882551d172f22d
-4. https://www.zhihu.com/question/20733617/answer/32513376
-5. https://segmentfault.com/a/1190000015812438
-6. https://www.cnblogs.com/oldbai/p/9890808.html
+1. [hash相关解析](https://blog.csdn.net/huzhigenlaohu/article/details/51802457)
+2. [源码分析](https://juejin.im/post/5d51884ee51d4561e0516ac9)
+3. [源码分析](https://juejin.im/post/5d54300151882551d172f22d)
+4. [hash算法](https://www.zhihu.com/question/20733617/answer/32513376)
+5. [扩容](https://segmentfault.com/a/1190000015812438)
+6. [红黑树插入](https://www.cnblogs.com/oldbai/p/9890808.html)

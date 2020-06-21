@@ -136,7 +136,7 @@ chkconfig redis_init_script on
 info replication
 # 2. 配置主ip
 vim redis.conf
-replicaof master_ip master_port
+slaveof master_ip master_port
 # 3. 配置主 登录密码
 masterauth <master-password>
 ```
