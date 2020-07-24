@@ -42,7 +42,7 @@ docker version
 
 ![](./images/docker_image.png)
 
-## 3.1获取Image(一) Dovkerfile
+## 3.1获取Image(一) Dockerfile
 
 ## 3.2获取Image(二) Pull from Registry
 > 从Docker Hub拉去Image
