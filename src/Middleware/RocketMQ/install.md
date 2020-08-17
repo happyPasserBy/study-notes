@@ -72,3 +72,11 @@ accounts:
 ```
 # docker run -d -e "JAVA_OPTS=-Drocketmq.namesrv.addr=xxx:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false" -p 10900:8080 --name dev-rmq-conso styletang/rocketmq-console-ng
 ```
+
+
+## 参考
+1. https://github.com/apache/rocketmq/tree/master/docs/cn
+
+2. https://www.cnblogs.com/franson-2016/p/12714692.html
+
+3. https://github.com/apache/rocketmq/blob/master/docs/cn/acl/user_guide.md
