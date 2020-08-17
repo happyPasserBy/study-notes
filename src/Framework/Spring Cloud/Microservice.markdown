@@ -164,10 +164,10 @@ spring:
 * 根据之前的方式创建两个Eureka，Eureka的端口个各不相同，application.yml中的defaultZone填写对方的地址已达到相互注册的功能
 * 在Eureka Client上修改application.yml，defaultZone上填写两个Eureka注册中心的地址以 , 分割
 
-## 3. Spring Cloud 服务间的通信
+### 3. Spring Cloud 服务间的通信
 > Spring Cloud与Dubbo不同，Dubbo采用RPC方式，而SpringCloud采用HTTP
-### 3.1 Spring Cloud中两种restful通信方式
-#### 3.1.1 RestTemplate
+#### 3.1 Spring Cloud中两种restful通信方式
+##### 3.1.1 RestTemplate
 * 直接使用RestTemplate调用，简单粗暴
 ```
 RestTemplate restTemplate = new RestTemplate();
@@ -203,7 +203,7 @@ public String test(){
 }
 ......
 ```
-#### 3.1.2 Feign
+##### 3.1.2 Feign
 * 在服务调用方添加Feign依赖
 ```
 <dependency>
@@ -251,11 +251,11 @@ public String test(){
 > 根据策略选取有效的服务
 * 服务监听
 > 删除异常的实例
-### 2.1 统一配置中心config-server
+### 4.1 统一配置中心config-server
 > 
 ![](spring_cloud_config_1.png)
 
-#### 2.1.1 创建配置中心
+#### 4.1.1 创建配置中心
 * 初始化项目，除了选择依赖不同其它均与Eureka创建方式相同
 ![](spring_cloud_config_2.png)
 * pom
@@ -352,7 +352,7 @@ eureka:
 server:
   port: 8081
 ```
-#### 2.1.2 从配置中心获取资源
+#### 4.1.2 从配置中心获取资源
 * pom中添加依赖
 ```
 <dependency>
@@ -405,8 +405,8 @@ public class ServerController {
 }
 ```
 
-#### 2.1.3 配置文件
-##### 2.1.3.1 访问规则
+#### 4.1.3 配置文件
+##### 4.1.3.1 访问规则
 ```
 /{name}-{profiles}.yml
 /{label}/{name}-{profiles}.yml
