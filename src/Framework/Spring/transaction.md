@@ -27,8 +27,39 @@ public interface PlatformTransactionManager {
     void rollback(TransactionStatus var1) throws TransactionException;
 }
 ```
+### Transaction核心接口之一 TransactionDefinition
+> 事务的属性定义
+```
+public interface TransactionDefinition {
 
-### Transaction核心类之一 TransactionInterceptor
+    // 返回事务的传播属性，默认是PROPAGATION_REQUIRED
+    int getPropagationBehavior();
+    // 返回事务隔离级别
+    int getIsolationLevel();
+    // 返回事务超时时间，以秒为单位
+    int getTimeout();
+    ......
+}
+```
+
+### Transaction核心接口之一 TransactionStatus
+> 当前事务状态
+```
+public interface TransactionStatus extends SavepointManager, Flushable {
+    // 当前方法是否创建了新事务
+    boolean isNewTransaction();
+
+    ......
+    
+    boolean isRollbackOnly();
+    // 刷新底层会话中的修改到数据库，一般用于刷新如Hibernate/JPA的会话，是否生效由具体事务资源实现决定；
+    void flush();
+    // 判断当前事务是否已完成
+    boolean isCompleted();
+}
+```
+
+### Transaction核心类之一 TransactionDefinition
 > 具体的事务执行类。Spring管理事务和执行的操作可以简化为三步
 * 收集带有@Transaction注解的类生成代理对象
 * 将代理对象交给IOC容器
