@@ -25,7 +25,7 @@
     * singleton: singleton定义的Bean是单例模式，默认作用域
     * prototype: prototype定义的Bean每次getBean返回的都是Bean的新实例
     * request: request定义的Bean将为每次HTTP请求生成新的Bean实例
-    * session: request定义的Bean每次调用都为每个Http Session返回一个Bean实例
+    * session: request定义的Bean每次调用都为每个Http Session返回一个Bean实例，同一Session下Bean是相同的
     * global session: ???????
 6. 依赖注入的方式
     * 构造注入
