@@ -72,4 +72,11 @@
 > ExecutorService的实现，实现了submit，invokeAll，invokeAny 等
 * ThreadPoolExecutor
 > 线程池的最终实现
+## 8. 线程池工作流程
+* 如果正在运行的线程数少于corePoolSize（用户定义的核心线程数），线程池就会立刻创建线程并执行该线程任务；
+* 如果正在运行的线程数大于corePoolSize，该任务就会被放入阻塞队列中；
+* 如果阻塞队列已满且正在运行的线程数少于maximumPoolSize时，线程池会创建非核心线程立刻执行该线程任务；
+* 在阻塞队列已满并且正在运行的线程数大于maximunPoolSize时，线程池将会拒绝执行该任务并且抛出拒绝异常RejectExecutionException;
+* 在线程执行完毕后，该任务会从线程队列中移除，然后从队列中取下一个任务继续执行；
+* 在线程处于空闲的时间超过keepAliveTime，并且正在运行的线程数大于corePoolSize， 该线程将会被认为是空闲线程并停止；所以线程任务都执行完毕后，线程池会收缩到corePoolSize大小。
 

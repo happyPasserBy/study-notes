@@ -47,6 +47,7 @@ int three = one + two; // 操作C
     2. volatile仅能实现变量的可见性，不能保证原子性，而synchronized都可以
     3. volatile不会阻塞线程，synchronized是可以的
     4. volatile标记的变量不会被编译器优化，而synchronized会
-
+* volatile导致的总线风暴
 ## 参考
 1. https://juejin.im/post/5ae6d309518825673123fd0e
+2. https://www.freesion.com/article/78361480659/

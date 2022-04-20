@@ -74,7 +74,7 @@
 2. 声明式事务(AOP)
     * XML方式
     * 注解方式
-#### Spring事务的常用API
+#### Spring事务的常用API 
     * PlatformTransactionManager: 事务平台管理器，Spring用于管理事务的真正对象
         1. DataSourceTransactionManager: 底层用JDBC管理事务
         2. HibernateTransactionManager: 底层使用Hibernate管理事务
