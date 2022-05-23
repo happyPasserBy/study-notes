@@ -1,5 +1,9 @@
 package Arithmetic;
 
+/**
+* 循环i次，每次保证i之前有序
+*
+ */
 public class InsertSort {
     public static int[] sort(int[] arr){
         for (int i = 1; i < arr.length; i++){

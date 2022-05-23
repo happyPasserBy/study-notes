@@ -1,6 +1,10 @@
 package Arithmetic;
 
 
+/**
+* 循环n次，每次找到最小的排在i位置上
+*
+ */
 public class ChooseSort {
     public static int[] sort(int[] arr){
         for (int i = 0;i<arr.length;i++){

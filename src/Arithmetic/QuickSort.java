@@ -1,5 +1,10 @@
 package Arithmetic;
 
+/**
+* 每次递归保证pivot有序即pivot左边都小于pivot或pivot右边都大于pivot
+* 先保证整体有序，在不断拆分保证子数组有序
+*
+ */
 public class QuickSort {
     public static void main(String[] args) {
         // int[] arr = {1, 4, 5, 67, 2, 7, 8, 6, 9, 44,123};
