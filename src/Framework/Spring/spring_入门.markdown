@@ -82,11 +82,10 @@
     * TransactionStatus: 事务的状态对象
         > PlatformTransactionManager根据TransactionDefinition进行事务的配置，执行事务时产生的状态会记录到TransactionStatus
 #### Spring传播行为
-> 场景假设: service中有两个方法A、B,B方法调用A
+> 场景假设: service中有两个方法A、B,A方法调用B
 1. 保证多个操作在同一事务中
-    * PROPAGATION_REQUIRED(Spring 事务默认值): 如果A中有事务，则使用A中的事务将A、B两个方法的操作包裹到一起执行，
-        如果A没有则创建新的事务将A、B的操作包裹起来
-    * PROP          AGATION_SUPPORT: 如果A中有事务，则使用A中的事务将A、B两个方法的操作包裹到一起执行，如果A中没有事务就不使用事务
+    * PROPAGATION_REQUIRED(Spring 事务默认值): 如果A中有事务，则使用A中的事务将A、B两个方法的操作包裹到一起执行，如果A没有则创建新的事务将B的操作包裹起来
+    * PROPAGATION_SUPPORT: 如果A中有事务，则使用A中的事务将A、B两个方法的操作包裹到一起执行，如果A中没有事务就不使用事务
     * PROPAGATION_MANDATORY: 如果A中有事务，则使用A中的事务将A、B两个方法的操作包裹到一起执行，如果A中没有事务就抛出异常
 2. 保证多个操作不在同一事务中
     * PROPAGATION_REQUIRES_NEW: 如果A中有事务，将A的事务挂起(暂停)，创建新的事务，只包含自身操作(不包含A),如果A中没有事务，创建新事务，包含自身操作

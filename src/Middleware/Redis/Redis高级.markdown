@@ -120,3 +120,4 @@ typedef struct redisObject{
 3. https://www.cnblogs.com/ysocean/p/9102811.html#_label1
 4. [数据库双写一致性](https://www.cnblogs.com/rjzheng/p/9041659.html)
 5. [数据库双写一致性](https://juejin.im/post/5d7c7a14f265da03f47c4f93#heading-2)
+6. [底层数据结构](https://mp.weixin.qq.com/s/MGcOl1kGuKdA7om0Ahz5IA)

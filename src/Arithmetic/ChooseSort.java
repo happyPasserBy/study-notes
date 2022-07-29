@@ -2,7 +2,7 @@ package Arithmetic;
 
 
 /**
-* 循环n次，每次找到最小的排在i位置上
+* 循环i次，每次找到最小的排在i位置上,也就是每次把最小的找到，在列表头部一次存储
 *
  */
 public class ChooseSort {

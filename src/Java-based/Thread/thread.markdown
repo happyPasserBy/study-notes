@@ -277,7 +277,7 @@ public class NotificationDemo {
 2. https://coding.imooc.com/lesson/303.html#mid=21216
 3. http://silencedut.com/2016/06/25/%E4%BB%8E%E4%BD%BF%E7%94%A8%E5%88%B0%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/
 4. [并行与并发](https://juejin.im/post/5bdf0667e51d450b267fe3e3#comment)
-5. [线程状态](https://juejin.im/post/5e208da16fb9a02fdd389934   )
+5. [线程状态](https://juejin.im/post/5e208da16fb9a02fdd389934)
 ## 遗留问题
 1.慕课-实战-java第八章第一小节
     * java是单线程模型？
