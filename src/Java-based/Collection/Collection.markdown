@@ -3,7 +3,7 @@
 2. 集合体系
     * 大致分为Collection与Map
 ![collections.png](collection.png)
-3. Collection体系
+3. Collection体系 
     1. List
         1. 特点: 值可重复，给每个值分配索引，常用子类有ArrayList,LinkedList
         2. ArrayList

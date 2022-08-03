@@ -37,5 +37,26 @@
 > 默认用的时行级锁，也支持表级锁 
 * 在查询时未用到索引则会为整张表加锁
 
+## 3 READ COMMITED 隔离级别下的加锁情况
+
+## 4 REPEATABLE READ 隔离级别下的加锁情况
+### 4.1 查询聚簇索引
+> 当 number 为8的数据存在时,对该数据加S锁
+```
+SELECT * FROM hero WHERE number = 8 LOCK IN SHARE MODE;
+```
+> 当 number 为7的数据不存在时，为了禁止幻读，会在 number 为8的数据上加gap锁
+``` 
+SELECT * FROM hero WHERE number = 7 LOCK IN SHARE MODE;
+```
+> 对 number 为 8 的增加S锁，并为后续查询的数据增加next key锁。
+```
+SELECT * FROM hero WHERE number >= 8 LOCK IN SHARE MODE;
+```
+>  对 number 为 1 的增加S锁，并未后续数据增加next key锁，虽然条件是<=8 但防止幻读仍会对 8后边的数据 number = 9的数据增加next key
+```
+SELECT * FROM hero WHERE number <= 8 LOCK IN SHARE MODE;
+```
+
 ## 参考
 1. [掘金小册](https://juejin.im/book/5bffcbc9f265da614b11b731)
